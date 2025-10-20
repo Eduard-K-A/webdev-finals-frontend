@@ -44,8 +44,9 @@ const SearchForm: React.FC = () => {
             <div className="flex-1 w-full md:w-auto">
                 <input 
                     type="text" 
+                    style={{ color: 'gray' }}
                     placeholder="Where are you going?" 
-                    className="p-3 w-full border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
+                    className="p-3 w-full border border-black-300 rounded focus:ring-blue-500 focus:border-blue-500"
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDestination(e.target.value)}
                     required
                 />
@@ -55,13 +56,15 @@ const SearchForm: React.FC = () => {
             <div className="flex space-x-2 w-full md:w-auto md:flex-initial">
                 <input 
                     type="date" 
-                    className="p-3 w-1/2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
+                    style={{ color: 'gray' }}
+                    className="p-3 w-1/2 border border-black-300 rounded focus:ring-blue-500 focus:border-blue-500"
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCheckIn(e.target.value)}
                     required
                 />
                 <input 
                     type="date" 
-                    className="p-3 w-1/2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
+                    style={{ color: 'gray' }}
+                    className="p-3 w-1/2 border border-black-300 rounded focus:ring-blue-500 focus:border-blue-500"
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCheckOut(e.target.value)}
                     required
                 />
@@ -71,6 +74,7 @@ const SearchForm: React.FC = () => {
             <div className="w-full md:w-auto md:flex-initial">
                 <select 
                     className="p-3 w-full border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
+                   style={{ color: 'gray' }}
                     value={options.adults} 
                     onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setOptions({...options, adults: parseInt(e.target.value) as SearchOptions["adults"]})}
                 >

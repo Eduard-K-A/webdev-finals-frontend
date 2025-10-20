@@ -8,7 +8,7 @@ const NavBar: React.FC = () => {
         <div className="flex justify-between items-center py-4 px-8 text-white max-w-7xl mx-auto">
             <div className="text-2xl font-bold">
                 <Link to="/" className="hover:text-gray-200 transition duration-300">
-                    🏨 MERN Booking
+                    🏨 Hotel Booking
                 </Link>
             </div>
             <div className="space-x-4">

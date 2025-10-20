@@ -31,7 +31,7 @@ const Header: React.FC<HeaderProps> = ({ type = "home" }) => {
                             text-lg md:text-xl font-light mb-8 
                             text-gray-300 max-w-3xl mx-auto
                         ">
-                            Unlock instant savings of 10% or more with a free MERN account.
+                            Reserve and explore the best hotels worldwide with ease and convenience!
                         </p>
                     </div>
                 )}

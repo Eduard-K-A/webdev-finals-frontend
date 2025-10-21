@@ -10,7 +10,6 @@ const HomePage: React.FC = () => {
             <Header type="home" />
             
             <main className="flex-grow">
-                {/* SearchForm is already included in the Header component */}
                 <FeaturedHotels />
                 
                 <section className="py-16 bg-gray-50 px-4 text-center">

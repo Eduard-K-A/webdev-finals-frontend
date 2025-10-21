@@ -4,7 +4,8 @@ import { SearchContextProvider } from './context/SearchContext';
 import Bookings from './pages/Bookings';
 import SignIn from './components/Login/SignIn';
 import Register from './components/Login/Register';
-import NavBar from './components/Header/NavBar';
+import NavBar from './components/Dashboard/NavBar';
+import Hotels from './components/Hotels/Hotels';
 
 function App() {
   return (
@@ -20,7 +21,7 @@ function App() {
           <Route path="*" element={<div>404 Not Found</div>} />
           <Route path="/signin" element={<SignIn />} />
           <Route path="/register" element={<Register />} />
-          {/* Add other core routes here (HotelDetails, Auth, MyBookings) */}
+          <Route path='/hotels/:id' element ={<Hotels/>} />
         </Routes>
       </Router>
     </SearchContextProvider>

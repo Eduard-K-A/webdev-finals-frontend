@@ -1,8 +1,8 @@
 // src/pages/HomePage.tsx
 import React from 'react';
-import Header from '../components/Header/Header';
-import Footer from '../components/Footer/Footer';
-import FeaturedHotels from '../components/Featured/FeaturedHotels';
+import Header from '../components/Dashboard/Header';
+import Footer from '../components/Dashboard/Footer';
+import FeaturedHotels from '../components/Hotels/FeaturedHotels';
 
 const HomePage: React.FC = () => {
     return (

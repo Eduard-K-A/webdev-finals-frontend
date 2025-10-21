@@ -30,8 +30,6 @@ const SearchForm: React.FC = () => {
             checkOutDate: new Date(checkOut), 
             options 
         });
-
-        // 2. Navigate to the search results page
         navigate('/hotels/search'); 
     };
 

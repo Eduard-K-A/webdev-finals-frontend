@@ -1,6 +1,5 @@
 
 import React from 'react';
-import NavBar from './NavBar';
 import SearchForm from '../Search/SearchForm';
 
 
@@ -12,15 +11,14 @@ const Header: React.FC<HeaderProps> = ({ type = "home" }) => {
     const isHomePage = type === "home";
     return (
         <header className={`
-            bg-gray-900 text-white 
+            bg-gray-500 text-black 
             ${isHomePage ? 'pb-20' : 'pb-8 pt-4'} 
         `}>
             <div className="max-w-7xl mx-auto px-4">
-                <NavBar />
-                
+            
                 {isHomePage && (
                     // Hero section with large, impactful typography
-                    <div className="pt-16 pb-12 text-center">
+                    <div className="pt-16 pb-12 text-center padding-x-4">
                         <h1 className="
                             text-5xl md:text-6xl font-extrabold mb-4 
                             tracking-tight leading-tight

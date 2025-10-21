@@ -12,7 +12,7 @@ const Footer: React.FC = () => {
                     <a href="/privacy" className="hover:text-blue-400">Privacy</a>
                 </div>
                 <p className="text-gray-400 text-xs">
-                    &copy; {new Date().getFullYear()} MERN Booking, Inc. Expertly built by a full-stack veteran.
+                    &copy; {new Date().getFullYear()} Hotel Booking, Inc. Expertly built for your comfort.
                 </p>
             </div>
         </footer>

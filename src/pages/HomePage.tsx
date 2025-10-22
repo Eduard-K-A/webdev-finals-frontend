@@ -2,7 +2,7 @@
 import React from 'react';
 import Header from '../components/Dashboard/Header';
 import Footer from '../components/Dashboard/Footer';
-import FeaturedHotels from '../components/Hotels/FeaturedHotels';
+import FeaturedHotels from '../components/Hotels/FeaturedHotel';
 
 const HomePage: React.FC = () => {
     return (

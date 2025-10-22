@@ -5,7 +5,7 @@ import Bookings from "./pages/Bookings";
 import SignIn from "./components/Login/SignIn";
 import Register from "./components/Login/Register";
 import NavBar from "./components/Dashboard/NavBar";
-import Hotels from "./components/Hotels/Hotels";
+import HotelDetail from "./components/Hotels/HotelDetail";
 
 function App() {
   return (
@@ -16,10 +16,10 @@ function App() {
           
           <Route path="/" element={<HomePage />} />
           <Route path="/hotels/search" element={<div>Hotel List Page </div>} />
-          <Route path="/Bookings" element={<Bookings />} />
+          <Route path="/myBookings" element={<Bookings />} />
           <Route path="/signin" element={<SignIn />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/hotels/:id" element={<Hotels />} />
+          <Route path="/hotels/:id" element={<HotelDetail />} />
 
           <Route path="*" element={<div>404 Not Found</div>} />
 

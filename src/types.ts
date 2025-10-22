@@ -23,6 +23,8 @@ export interface SearchContextType {
     updateSearchParams: (params: Partial<SearchState>) => void; // Partial allows updating only some fields
     resetSearch: () => void;
 }
+
+//
 export interface FeaturedHotel {
   id: number;
   name: string;

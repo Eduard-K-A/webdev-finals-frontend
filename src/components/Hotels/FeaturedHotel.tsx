@@ -1,34 +1,14 @@
 // src/components/Featured/FeaturedHotels.tsx
 import React from "react";
 import { Link } from "react-router-dom";
-import hotels from  '../../data/hotels.json';
+import hotels from "../../data/hotels.json";
 import type { FeaturedHotel } from "../../types";
-// Define type for a featured item
 
-const FeaturedHotels: React.FC = () => {
-  const featuredData: FeaturedHotel[] = [
-    {
-      id: 1,
-      name: "Luxury Resort Bali",
-      city: "Bali",
-      price: 350,
-      imagePlaceholder: "resort",
-    },
-    {
-      id: 2,
-      name: "City Loft Tokyo",
-      city: "Tokyo",
-      price: 180,
-      imagePlaceholder: "city",
-    },
-    {
-      id: 3,
-      name: "Mountain Lodge Denver",
-      city: "Denver",
-      price: 220,
-      imagePlaceholder: "mountain",
-    },
-  ];
+// Define type for a featured item
+interface FeaturedHotelsProps {}
+
+const FeaturedHotels: React.FC<FeaturedHotelsProps> = () => {
+  const hotelsList = hotels as FeaturedHotel[];
 
   return (
     <section className="mt-16 mb-20 max-w-7xl mx-auto px-4">
@@ -36,19 +16,15 @@ const FeaturedHotels: React.FC = () => {
         Popular Reservations
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {featuredData.map((hotel) => (
-          <div
+        {hotelsList.map((hotel) => (
+          <Link
             key={hotel.id}
-            className="bg-white rounded-lg shadow-md overflow-hidden transition transform hover:scale-[1.02] duration-300 cursor-pointer"
+            to={`/hotels/${hotel.id}`}
+            className="bg-white rounded-lg shadow-md overflow-hidden transition transform hover:scale-[1.02] duration-300 cursor-pointer block"
           >
             <div className="h-48 w-full bg-gray-200 flex items-center justify-center text-gray-500 font-semibold"></div>
-            <div className="p-4">
-              <Link 
-              to={`/hotels/${hotel.id}`}
-              className="text-xl font-semibold text-gray-900"
-              >{hotel.name}
-              </Link>
-
+            <div className=" p-4 text-xl font-semibold text-gray-900 block">
+              {hotel.name}
               <p className="text-gray-500 mt-1">{hotel.city}</p>
               <span className="mt-2 inline-block text-lg font-bold text-blue-600">
                 ${hotel.price}
@@ -57,7 +33,7 @@ const FeaturedHotels: React.FC = () => {
                 </span>
               </span>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     </section>

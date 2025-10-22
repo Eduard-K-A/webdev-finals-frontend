@@ -1,15 +1,9 @@
 // src/components/Featured/FeaturedHotels.tsx
 import React from "react";
 import { Link } from "react-router-dom";
-
+import hotels from  '../../data/hotels.json';
+import type { FeaturedHotel } from "../../types";
 // Define type for a featured item
-interface FeaturedHotel {
-  id: number;
-  name: string;
-  city: string;
-  price: number;
-  imagePlaceholder: string; // Using a descriptive placeholder
-}
 
 const FeaturedHotels: React.FC = () => {
   const featuredData: FeaturedHotel[] = [

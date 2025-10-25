@@ -22,7 +22,7 @@ const HotelDetail: React.FC = () => {
 
   // If the hotel is found, display its details.
   return (
-    <div className="p-8 max-w-2xl mx-auto bg-white rounded-xl shadow-md space-y-4">
+    <div className="p-8 max-w-2xl mx-auto bg-white rounded-xl shadow-md space-y-4 hover:shadow-xl transition-shadow duration-50">
       <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight">{hotel.name}</h1>
       <div className="text-lg text-gray-600">
         <p>

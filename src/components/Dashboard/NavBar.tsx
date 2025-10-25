@@ -11,7 +11,7 @@ const NavBar: React.FC = () => {
                 </Link>
             </div>
             <div className="space-x-4">
-                <button className="bg-white text-black-600 px-3 py-1 rounded-md text-sm font-medium hover:bg-black-100 transition duration-300">
+                <button className="bg-white text-black-600 px-3 py-1 rounded-md text-sm font-medium hover:bg-gray-100 transition duration-300">
                     <Link to="/Register">Register</Link>
                 </button>
                 <button className="bg-white text-black-600 px-3 py-1 rounded-md text-sm font-medium hover:bg-gray-100 transition duration-300">

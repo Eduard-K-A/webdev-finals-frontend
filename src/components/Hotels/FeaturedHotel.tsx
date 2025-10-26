@@ -19,7 +19,7 @@ const FeaturedHotels: React.FC<FeaturedHotelsProps> = () => {
         {hotelsList.map((hotel) => (
           <Link
             key={hotel.id}
-            to={`/hotels/${hotel.id}`}
+            to={`/Hotels/${hotel.id}`}
             className="bg-white rounded-lg shadow-md overflow-hidden transition transform hover:scale-[1.02] duration-300 cursor-pointer block"
           >
             <div className="h-48 w-full bg-gray-200 flex items-center justify-center text-gray-500 font-semibold"></div>

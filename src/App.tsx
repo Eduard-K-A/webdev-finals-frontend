@@ -15,11 +15,11 @@ function App() {
         <Routes>
           
           <Route path="/" element={<HomePage />} />
-          <Route path="/hotels/search" element={<div>Hotel List Page </div>} />
-          <Route path="/myBookings" element={<Bookings />} />
-          <Route path="/signin" element={<SignIn />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/hotels/:id" element={<HotelDetail />} />
+          <Route path="/Hotels/Search" element={<div>Hotel List Page </div>} />
+          <Route path="/MyBookings" element={<Bookings />} />
+          <Route path="/Signin" element={<SignIn />} />
+          <Route path="/Register" element={<Register />} />
+          <Route path="/Hotels/:id" element={<HotelDetail />} />
 
           <Route path="*" element={<div>404 Not Found</div>} />
 

@@ -14,7 +14,7 @@ const Register: React.FC = () => {
     e.preventDefault();
     setMessage("");
     try {
-      const res = await axios.post("http://localhost:5000/auth/register", {
+      const res = await axios.post("http://localhost:5000/auth/Register", {
         username,
         firstName,
         lastName,

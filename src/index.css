@@ -4,5 +4,6 @@
 @tailwind utilities;
 
 body {
-  @import font-family: 'Airbnb Cereal VF';
+  @import --font-sans: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  @import --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }

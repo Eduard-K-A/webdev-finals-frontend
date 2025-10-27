@@ -4,7 +4,7 @@ import axios from "axios";
 // AnimatedText component
 const AnimatedText: React.FC<{ text: string }> = ({ text }) => {
   return (
-    <h1 className="text-4xl md:text-5xl font-bold mb-4 text-[#d4a574] flex flex-wrap">
+    <h1 className="text-4xl md:text-5xl font-bold mb-4 text-[#362f22] flex flex-wrap">
       {text.split("").map((char, index) => (
         <span
           key={index}
@@ -60,11 +60,12 @@ const Register: React.FC = () => {
       {/* Main content */}
       <div className="flex flex-col md:flex-row flex-1">
         {/* Left side - marketing text */}
-        <div className="md:w-4/5 flex items-center justify-center p-8">
+        <div className="md:w-4/5 flex items-center justify-center p-8 bg-cover bg-center"
+        style={{ backgroundImage: "url('public/assets/registerPageImg.png')" }}>
           <div className="text-center md:text-left">
             {/* Animated header */}
             <AnimatedText text="Welcome to LuxeStay" />
-            <p className="text-lg md:text-xl text-gray-700">
+            <p className="text-lg md:text-xl text-black-700 max-w-xl">
               Experience luxury at every stay. Join LuxeStay today and discover
               premium accommodations, exclusive deals, and a world of comfort
               tailored just for you.

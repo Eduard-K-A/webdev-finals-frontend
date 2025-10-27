@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 const NavBar: React.FC = () => {
   return (
-    <div className="sticky top-0 flex justify-between items-center py-4 text-black mx-auto bg-white w-full shadow-sm">
+    <div className="z-10 sticky top-0 flex justify-between items-center py-4 text-black mx-auto bg-white w-full shadow-sm">
       {/* Left Section: LuxeStay brand */}
       <div className="ml-6 text-2xl font-bold">
         <Link

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
-import hotels from '../../data/hotels.json';
-import type { FeaturedHotel } from '../../types';
+import hotels from '../data/hotels.json';
+import type { FeaturedHotel } from '../types';
 
 
 const HotelDetail: React.FC = () => {

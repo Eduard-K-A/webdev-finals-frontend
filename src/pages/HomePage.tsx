@@ -9,7 +9,7 @@ const HomePage: React.FC = () => {
         <div className="min-h-screen flex flex-col">
             <Header type="home" />
             
-            <main className="flex-grow">
+            <main className="flex-grow pt-20">
                 <FeaturedHotels />
                 
                 <section className="py-16 bg-gray-50 px-4 text-center">

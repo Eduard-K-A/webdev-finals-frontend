@@ -1,11 +1,20 @@
 /** @type {import('tailwindcss').Config} */
-export default {
+module.exports = {
   content: [
-    "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
+    "./src/**/*.{js,ts,jsx,tsx}", // make sure your files are included
   ],
   theme: {
-    extend: {},
+    extend: {
+      keyframes: {
+        wave: {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-15px)" },
+        },
+      },
+      animation: {
+        wave: "wave 0.5s ease-in-out forwards",
+      },
+    },
   },
   plugins: [],
-}
+};

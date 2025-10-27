@@ -92,5 +92,4 @@ const SearchForm: React.FC = () => {
         </form>
     );
 };
-
 export default SearchForm;

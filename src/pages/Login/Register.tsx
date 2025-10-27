@@ -1,15 +1,15 @@
 import React, { useState } from "react";
 import axios from "axios";
 
-// AnimatedText component
-const AnimatedText: React.FC<{ text: string }> = ({ text }) => {
+// AnimatedText component with wave animation
+const AnimatedText: React.FC<{ text: string; style?: React.CSSProperties }> = ({ text, style }) => {
   return (
     <h1 className="text-4xl md:text-5xl font-bold mb-4 text-[#362f22] flex flex-wrap">
       {text.split("").map((char, index) => (
         <span
           key={index}
           className="inline-block animate-wave"
-          style={{ animationDelay: `${index * 0.1}s` }}
+          style={{ animationDelay: `calc(${index * 0.1}s + 1s)`, ...style }}
         >
           {char === " " ? "\u00A0" : char}
         </span>
@@ -60,10 +60,11 @@ const Register: React.FC = () => {
       {/* Main content */}
       <div className="flex flex-col md:flex-row flex-1">
         {/* Left side - marketing text */}
-        <div className="md:w-4/5 flex items-center justify-center p-8 bg-cover bg-center"
-        style={{ backgroundImage: "url('public/assets/registerPageImg.png')" }}>
-          <div className="text-center md:text-left">
-            {/* Animated header */}
+        <div
+          className="md:w-4/5 flex items-center justify-center p-8 bg-cover bg-center"
+          style={{ backgroundImage: "url('public/assets/registerPageImg.png')" }}
+        >
+          <div className="text-center md:text-left" style={{ animationDelay: "1s" }}>
             <AnimatedText text="Welcome to LuxeStay" />
             <p className="text-lg md:text-xl text-black-700 max-w-xl">
               Experience luxury at every stay. Join LuxeStay today and discover
@@ -75,7 +76,10 @@ const Register: React.FC = () => {
 
         {/* Right side - registration card */}
         <div className="md:w-2/5 flex items-start justify-center p-8">
-          <div className="flex shadow-lg rounded-2xl overflow-hidden border border-[#d4a574] w-full">
+          <div
+            className="flex shadow-lg rounded-2xl overflow-hidden border border-[#d4a574] w-full animate-slide-fade-in"
+            style={{ animationDelay: "0.2s" }}
+          >
             <div className="w-1 bg-[#d4a574]"></div>
             <div className="flex flex-col w-full p-6 sm:p-8 bg-white">
               <h2 className="text-3xl font-bold text-center mb-6 text-[#d4a574]">

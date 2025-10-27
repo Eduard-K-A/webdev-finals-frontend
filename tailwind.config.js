@@ -1,8 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: [
-    "./src/**/*.{js,ts,jsx,tsx}", // make sure your files are included
-  ],
+  content: ["./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
       keyframes: {
@@ -10,9 +8,14 @@ module.exports = {
           "0%, 100%": { transform: "translateY(0)" },
           "50%": { transform: "translateY(-15px)" },
         },
+        slideFadeIn: {
+          "0%": { transform: "translateX(100%)", opacity: "0" },
+          "100%": { transform: "translateX(0)", opacity: "1" },
+        },
       },
       animation: {
         wave: "wave 0.5s ease-in-out forwards",
+        "slide-fade-in": "slideFadeIn 0.8s ease-out forwards",
       },
     },
   },

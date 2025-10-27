@@ -34,9 +34,10 @@ const SearchForm: React.FC = () => {
     };
 
     return (
-        <form 
-            className="flex flex-col md:flex-row items-center justify-center p-4 bg-white rounded-lg shadow-xl -mt-10 mx-auto w-11/12 max-w-5xl space-y-3 md:space-y-0 md:space-x-3" 
-            onSubmit={handleSearch}
+        <form
+        className="flex flex-col md:flex-row items-center justify-center p-4 bg-white rounded-lg shadow-xl -mt-10 mx-auto w-11/12 max-w-5xl space-y-3 md:space-y-0 md:space-x-3 opacity-0 animate-slide-up-fade-in"
+        style={{ animationDelay: "0.3s" }}
+        onSubmit={handleSearch}
         >
             {/* destination Input */}
             <div className="flex-1 w-full md:w-auto">
@@ -85,7 +86,7 @@ const SearchForm: React.FC = () => {
             {/* Search Button */}
             <button 
                 type="submit" 
-                className="w-full md:w-auto bg-blue-600 text-white font-semibold py-3 px-6 rounded hover:bg-blue-700 transition duration-300"
+                className="w-full md:w-auto bg-[#d4a574] text-white font-semibold py-3 px-6 rounded hover:bg-[#b48c5a] transition duration-300"
             >
                 Search
             </button>

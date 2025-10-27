@@ -2,10 +2,10 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import { SearchContextProvider } from "./context/SearchContext";
 import Bookings from "./pages/Bookings";
-import SignIn from "./components/Login/SignIn";
-import Register from "./components/Login/Register";
+import SignIn from "./pages/Login/SignIn";
+import Register from "./pages/Login/Register";
 import NavBar from "./components/Dashboard/NavBar";
-import HotelDetail from "./components/Hotels/HotelDetail";
+import HotelDetail from "./pages/HotelDetail";
 
 function App() {
   return (

@@ -33,6 +33,7 @@ const Register: React.FC = () => {
     e.preventDefault();
     setMessage("");
     try {
+      {/* Send registration data to the backend */}
       const res = await axios.post("http://localhost:5000/auth/Register", {
         username,
         firstName,
@@ -40,7 +41,8 @@ const Register: React.FC = () => {
         email,
         password,
       });
-      setMessage(res.data.message || "Registered successfully!");
+      setMessage(res.data.message || "Registered successfully!"); 
+      {/* Reset form fields after successful registration */}
       setUsername("");
       setFirstName("");
       setLastName("");
@@ -56,12 +58,12 @@ const Register: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#f5f0eb]">
+    <div className="flex flex-col h-[calc(100vh-72px)] bg-[#f5f0eb]">
       {/* Main content */}
       <div className="flex flex-col md:flex-row flex-1">
         {/* Left side - marketing text */}
         <div
-          className="md:w-4/5 flex items-center justify-center p-8 bg-cover bg-center"
+          className="md:w-4/5 flex items-center justify-center p-8 bg-cover bg-center h-[calc(100vh-72px)]"
           style={{ backgroundImage: "url('public/assets/registerPageImg.png')" }}
         >
           <div className="text-center md:text-left" style={{ animationDelay: "1s" }}>
@@ -75,7 +77,7 @@ const Register: React.FC = () => {
         </div>
 
         {/* Right side - registration card */}
-        <div className="md:w-2/5 flex items-start justify-center p-8">
+        <div className="md:w-2/5 flex items-start justify-center p-8 overflow-y-auto h-[calc(100vh-72px)]">
           <div
             className="flex shadow-lg rounded-2xl overflow-hidden border border-[#d4a574] w-full opacity-0 translate-x-full animate-slide-fade-in"
             style={{ animationDelay: "0.2s" }}
@@ -133,7 +135,7 @@ const Register: React.FC = () => {
                 />
                 <input
                   type="password"
-                  placeholder="Password (min. 6 characters)"
+                  placeholder="Password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
@@ -163,10 +165,7 @@ const Register: React.FC = () => {
         </div>
       </div>
 
-      {/* Footer */}
-      <footer className="w-full text-center py-4 bg-[#d4a574] text-black-500 text-sm">
-        © 2025 Hotel Booking, Inc. Expertly built for your comfort.
-      </footer>
+    
     </div>
   );
 };

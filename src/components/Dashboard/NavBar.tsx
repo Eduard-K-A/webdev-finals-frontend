@@ -1,56 +1,69 @@
-import React from "react";
-import { Link, useLocation } from "react-router-dom";
+  import React from "react";
+  import { Link, useLocation } from "react-router-dom";
+  import { Hotel, LogIn } from 'lucide-react'; 
 
-const NavBar: React.FC = () => {
-  const location = useLocation();
+  // --- Color Constants based on Spec ---
+  const NAV_BG_COLOR = "bg-white"; 
+  const NAV_BORDER_COLOR = "border-gray-200"; 
+  const BRAND_NAVY = "#0a1e3d"; 
+  const BRAND_GOLD = "#d4a574"; 
+  const BUTTON_HOVER_GOLD = "#c19563";
 
-  // Shared base style for all buttons
-  const buttonBase =
-    "inline-flex items-center justify-center h-9 px-4 py-2 rounded-full font-semibold transition-all duration-300 border border-[#f7e9dc]";
+  const NavBar: React.FC = () => {
+    const location = useLocation();
+    
+    // Function to dynamically apply active/hover styles for links
+    const getLinkClass = (path: string) => {
+      const isActive = location.pathname === path;
+      return `
+        text-base font-medium transition-colors duration-200 
+        ${isActive
+            ? `text-[${BRAND_GOLD}] border-b-2 border-[${BRAND_GOLD}] font-semibold` // Active: Gold underline
+            : "text-gray-700 hover:text-[#1f1f1f]" // Default/Hover: Dark text
+        }`;
+    };
 
-  // Function to dynamically apply active/hover styles
-  const getButtonClass = (path: string) => {
-    const isActive = location.pathname === path;
-    return `${buttonBase} ${
-      isActive
-        ? "bg-[#d4a574] text-white" // Active (current page)
-        : "bg-[#e0bd99] text-black hover:bg-[#d4a574] hover:text-white"
-    }`;
+    return (
+      <div className={`sticky top-0 z-50 w-full ${NAV_BG_COLOR} border-b ${NAV_BORDER_COLOR} shadow-sm px-8 py-3`}>
+        <div className="flex justify-between items-center h-full">
+          
+          {/* 1. Logo & Brand Section (Left) */}
+          <div className="flex items-center gap-2 cursor-pointer">
+            <Hotel className={`h-8 w-8 text-[${BRAND_NAVY}]`} />
+            
+            <Link to="/" className={`text-xl text-[${BRAND_NAVY}] font-medium`}>
+              LuxeStay
+            </Link>
+          </div>
+
+          {/* 2. Navigation Links Section (Middle) */}
+          <nav className="hidden md:flex items-center gap-6 h-full">
+            <Link to="/" className={getLinkClass("/")}>
+              Home
+            </Link>
+            <Link to="/Hotels/Search" className={getLinkClass("/Hotels/Search")}>
+              Rooms
+            </Link>
+          </nav>
+
+          {/* 3. Auth Button Section (Right Side) */}
+          <div className="space-x-4">
+            <Link 
+              to="/SignIn" 
+              className={`
+                inline-flex items-center justify-center h-10 px-6 rounded-full 
+                text-sm font-medium transition-all duration-300 shadow-md 
+                text-[${BRAND_NAVY}] bg-[${BRAND_GOLD}] hover:bg-[${BUTTON_HOVER_GOLD}] 
+                space-x-2
+              `}
+            >
+              <LogIn className="h-4 w-4" /> 
+              <span>Log In / Register</span>
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
   };
 
-  return (
-    <div className="z-10 sticky top-0 flex justify-between items-center py-3 text-black mx-auto bg-[#d4a574] w-full shadow-sm">
-      {/* Left Section: LuxeStay brand */}
-      <div className="ml-6 text-2xl font-bold">
-        <Link
-          to="/"
-          className="inline-flex items-center justify-center px-4 py-2 rounded-full text-black font-semibold transition-all duration-300"
-        >
-          LuxeStay
-        </Link>
-      </div>
-
-      {/* Middle Section: Navigation Links */}
-      <div className="space-x-4">
-        <Link to="/" className={getButtonClass("/")}>
-          Home
-        </Link>
-        <Link to="/Room" className={getButtonClass("/Room")}>
-          Rooms
-        </Link>
-      </div>
-
-      {/* Right Section: Auth Buttons */}
-      <div className="space-x-4 mr-6">
-        <Link to="/Register" className={getButtonClass("/Register")}>
-          Register
-        </Link>
-        <Link to="/SignIn" className={getButtonClass("/SignIn")}>
-          Sign In
-        </Link>
-      </div>
-    </div>
-  );
-};
-
-export default NavBar;
+  export default NavBar;

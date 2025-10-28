@@ -77,7 +77,7 @@ const Register: React.FC = () => {
         </div>
 
         {/* Right side - registration card */}
-        <div className="md:w-2/5 flex items-start justify-center p-8 overflow-y-auto h-[calc(100vh-72px)]">
+        <div className="md:w-2/5 flex items-start justify-center p-8 overflow-y-auto overflow-x-hidden h-[calc(100vh-72px)]">
           <div
             className="flex shadow-lg rounded-2xl overflow-hidden border border-[#d4a574] w-full opacity-0 translate-x-full animate-slide-fade-in"
             style={{ animationDelay: "0.2s" }}

@@ -36,7 +36,9 @@ const SignIn: React.FC = () => {
 
     try {
       // Send sign-in data to the backend
-      const res = await axios.post("http://localhost:5000/auth/login", {
+
+      const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+      const res = await axios.post(`${apiBaseUrl}/auth/login`, {
         username,
         password,
       });

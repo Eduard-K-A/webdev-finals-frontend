@@ -29,12 +29,16 @@ const Register: React.FC = () => {
   const inputClass =
     "w-full px-4 py-2 border border-[#d4a574] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d4a574] hover:border-[#b48c5a] hover:shadow-md transition-all";
 
+  
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setMessage("");
     try {
       {/* Send registration data to the backend */}
-      const res = await axios.post("http://localhost:5000/auth/Register", {
+      const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+
+      const res = await axios.post(`${apiBaseUrl}/auth/Register`, {
         username,
         firstName,
         lastName,

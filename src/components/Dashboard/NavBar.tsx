@@ -28,7 +28,7 @@
         <div className="flex justify-between items-center h-full">
           
           {/* 1. Logo & Brand Section (Left) */}
-          <div className="flex items-center gap-2 cursor-pointer">
+          <div className="flex items-center gap-2 cursor-pointer ml-20">
             <Hotel className={`h-8 w-8 text-[${BRAND_NAVY}]`} />
             
             <Link to="/" className={`text-xl text-[${BRAND_NAVY}] font-medium`}>

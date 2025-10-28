@@ -5,6 +5,7 @@ const SignIn: React.FC = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
+  const [isSuccess, setIsSuccess] = useState(false);
 
   const inputClass =
     "w-full px-4 py-2 border border-[#d4a574] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d4a574] hover:border-[#b48c5a] hover:shadow-md transition-all";
@@ -13,11 +14,16 @@ const SignIn: React.FC = () => {
     e.preventDefault();
     setMessage("");
     try {
-      const res = await axios.post("http://localhost:5000/auth/SignIn", {
+      const res = await axios.post("http://localhost:5000/auth/login", {
         username,
         password,
       });
-      setMessage(res.data.message || "Signed in successfully!");
+      
+      setIsSuccess(true);
+      setMessage(res.data.message);
+      
+      // Store user data in localStorage or state management
+      localStorage.setItem('user', JSON.stringify(res.data.user));
     } catch (err) {
       if (axios.isAxiosError(err) && err.response) {
         setMessage(err.response.data.message || "Sign in failed");
@@ -65,7 +71,11 @@ const SignIn: React.FC = () => {
             Sign In
           </button>
         </form>
-        {message && <p className="mt-4 text-red-500">{message}</p>}
+        {message && (
+          <p className={`mt-4 ${isSuccess ? 'text-green-500' : 'text-red-500'}`}>
+            {message}
+          </p>
+        )}
       </div>
     </div>
   );

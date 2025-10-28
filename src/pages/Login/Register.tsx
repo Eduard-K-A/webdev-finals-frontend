@@ -64,7 +64,7 @@ const Register: React.FC = () => {
         {/* Left side - marketing text */}
         <div
           className="md:w-4/5 flex items-center justify-center p-8 bg-cover bg-center h-[calc(100vh-72px)]"
-          style={{ backgroundImage: "url('public/assets/registerPageImg.png')" }}
+          style={{ backgroundImage: "url('/assets/registerPageImg.png')" }}
         >
           <div className="text-center md:text-left" style={{ animationDelay: "1s" }}>
             <AnimatedText text="Welcome to LuxeStay" />

@@ -133,7 +133,7 @@ const Header: React.FC<HeaderProps> = ({ type = "home" }) => {
         </div>
         
         {/* 5. Search Form Wrapper (The Floating Card)*/}
-        <div className="w-full max-w-3xl opacity-0 animate-fade-in" style={{ animationDelay: "1.2s", animationDuration: '0.8s' }}> 
+        <div className="w-full max-w-3xl opacity-0 animate-slide-up-fade-in" style={{ animationDelay: "1.2s", animationDuration: '0.8s' }}> 
           <div 
             className="p-6 rounded-2xl shadow-xl bg-white"
           > 

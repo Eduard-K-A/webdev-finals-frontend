@@ -97,7 +97,7 @@ const SignIn: React.FC = () => {
             <div className="w-1 bg-[#d4a574]"></div>
 
             <div className="flex flex-col w-full p-6 sm:p-8 bg-white">
-              <h2 className="text-3xl font-bold text-center mb-6 text-[#d4a574]">
+              <h2 className="text-3xl font-bold text-center mb-6 text-[#362f22]">
               LuxeStay
               </h2>
 

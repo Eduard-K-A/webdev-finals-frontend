@@ -26,6 +26,7 @@ export interface SearchContextType {
 
 //
 export interface FeaturedHotel {
+  image: string;
   id: number;
   name: string;
   city: string;

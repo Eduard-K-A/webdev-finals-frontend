@@ -8,6 +8,7 @@ import {
   EyeOff,
   FileSignature,
 } from "lucide-react";
+import { Link } from "react-router-dom"; // Added for links with state
 
 // --- AnimatedText Component (wave animation) ---
 const AnimatedText: React.FC<{ text: string; style?: React.CSSProperties }> = ({
@@ -42,7 +43,7 @@ const Register: React.FC = () => {
 
   // --- Base Input Style ---
   const inputBase =
-    "w-full px-4 py-2 border border-[#d4a574]/70 bg-white text-[#362f22] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d4a574] hover:border-[#b48c5a] hover:shadow-sm transition-all pl-10"; // restored placeholder color
+    "w-full px-4 py-2 border border-[#d4a574]/70 bg-white text-[#362f22] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d4a574] hover:border-[#b48c5a] hover:shadow-sm transition-all pl-10";
 
   // --- Handle Form Submission ---
   const handleSubmit = async (e: React.FormEvent) => {
@@ -200,7 +201,7 @@ const Register: React.FC = () => {
                   icon={<Mail className="w-5 h-5" />}
                 />
 
-                {/* Password Field (Fixed Focus Issue) */}
+                {/* Password Field */}
                 <div className="relative">
                   <label className="block text-sm font-medium text-[#362f22] mb-1">
                     Password
@@ -242,13 +243,21 @@ const Register: React.FC = () => {
                   />
                   <label className="text-[#362f22]/80">
                     I agree to the{" "}
-                    <a href="#" className="text-[#d4a574] hover:underline">
+                    <Link
+                      to="/terms"
+                      state={{ fromRegister: true }}
+                      className="text-[#d4a574] hover:underline"
+                    >
                       Terms and Conditions
-                    </a>{" "}
+                    </Link>{" "}
                     and{" "}
-                    <a href="#" className="text-[#d4a574] hover:underline">
+                    <Link
+                      to="/policy"
+                      state={{ fromRegister: true }}
+                      className="text-[#d4a574] hover:underline"
+                    >
                       Privacy Policy
-                    </a>
+                    </Link>
                     .
                   </label>
                 </div>
@@ -264,12 +273,12 @@ const Register: React.FC = () => {
 
               <p className="text-center text-sm text-gray-600 mt-6">
                 Already have an account?{" "}
-                <a
-                  href="/Signin"
+                <Link
+                  to="/Signin"
                   className="text-[#d4a574] font-medium hover:underline"
                 >
                   Sign in
-                </a>
+                </Link>
               </p>
             </div>
           </div>

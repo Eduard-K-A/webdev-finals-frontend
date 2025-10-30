@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
-import type { Photo, Room } from '../types';
+import type { Room } from '../types';
 
 function Rooms() {
   const [rooms, setRooms] = useState<Room[]>([]);

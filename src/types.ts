@@ -33,3 +33,22 @@ export interface FeaturedHotel {
   price: number;
   imagePlaceholder: string; // Using a descriptive placeholder
 }
+
+//define the shape of photo object
+export interface Photo  {
+  url: string;
+  publicId?: string;
+  originalName?: string;
+};
+
+//define the shape of room object
+export interface Room {
+  _id: string;
+  title: string;
+  description: string;
+  type: string;
+  pricePerNight: number;
+  maxPeople: number;
+  photos: Photo[]; //array of photo objects
+  isAvailable: boolean;
+};

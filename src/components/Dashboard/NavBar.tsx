@@ -34,8 +34,11 @@
             <Link to="/" className={getLinkClass("/")}>
               Home
             </Link>
-            <Link to="/Hotels/Search" className={getLinkClass("/Hotels/Search")}>
+            <Link to="/Rooms" className={getLinkClass("/Rooms")}>
               Rooms
+            </Link>
+             <Link to="/ManageRoom" className={getLinkClass("ManageRoom")}>
+              Manage Room
             </Link>
           </nav>
 

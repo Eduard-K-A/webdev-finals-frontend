@@ -96,12 +96,13 @@ const FeaturedHotels: React.FC<FeaturedHotelsProps> = () => {
 
                 {/* View All Button */}
                 <div className="text-center mt-12">
-                    <button
+                    <Link
+                        to="/Rooms"
                         onClick={handleViewAllRooms}
                         className="py-3 px-8 text-base font-semibold rounded-full border-2 border-[#d4a574] text-[#0a1e3d] hover:bg-[#d4a574] hover:text-white transition-all duration-200"
                     >
                         View All Rooms
-                    </button>
+                    </Link>
                 </div>
             </div>
         </section>

@@ -1,7 +1,17 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+  /* Brand Primary Colors */
+  --color-brand-navy: #0a1e3d;
+  --color-brand-gold: #d4a574;
+  --color-brand-gold-hover: #c19563; 
+  
+  /* Neutral Colors */
+  --color-background-light: #f8f9fa;
+  --color-text-gray: #4b5563;
+}
 
 body {
   @import --font-sans: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
@@ -19,4 +29,30 @@ body {
 
 .animate-rainbow {
   animation: rainbow 5s linear infinite;
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-fade-in {
+  animation-name: fade-in;
+  animation-fill-mode: forwards;
+  /* Duration and delay are controlled by inline style in the React component */
+}
+
+@keyframes slide-up-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-up-fade-in {
+  animation-name: slide-up-fade-in;
+  animation-fill-mode: forwards;
 }

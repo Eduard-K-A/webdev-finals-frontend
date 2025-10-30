@@ -2,13 +2,6 @@
   import { Link, useLocation } from "react-router-dom";
   import { Hotel, LogIn } from 'lucide-react'; 
 
-  // --- Color Constants based on Spec ---
-  const NAV_BG_COLOR = "bg-white"; 
-  const NAV_BORDER_COLOR = "border-gray-200"; 
-  const BRAND_NAVY = "#0a1e3d"; 
-  const BRAND_GOLD = "#d4a574"; 
-  const BUTTON_HOVER_GOLD = "#c19563";
-
   const NavBar: React.FC = () => {
     const location = useLocation();
     
@@ -18,20 +11,20 @@
       return `
         text-base font-medium transition-colors duration-200 
         ${isActive
-            ? `text-[${BRAND_GOLD}] border-b-2 border-[${BRAND_GOLD}] font-semibold` // Active: Gold underline
+            ? `text-[#d4a574] border-b-2 border-[#d4a574] font-semibold` // Active: Gold underline
             : "text-gray-700 hover:text-[#1f1f1f]" // Default/Hover: Dark text
         }`;
     };
 
     return (
-      <div className={`sticky top-0 z-50 w-full ${NAV_BG_COLOR} border-b ${NAV_BORDER_COLOR} shadow-sm px-8 py-3`}>
+      <div className={`sticky top-0 z-50 w-full bg-white border-b border-gray-200 shadow-sm px-8 py-3`}>
         <div className="flex justify-between items-center h-full">
           
           {/* 1. Logo & Brand Section (Left) */}
           <div className="flex items-center gap-2 cursor-pointer ml-20">
-            <Hotel className={`h-8 w-8 text-[${BRAND_NAVY}]`} />
+            <Hotel className={`h-8 w-8 text-[#0a1e3d}]`} />
             
-            <Link to="/" className={`text-xl text-[${BRAND_NAVY}] font-medium`}>
+            <Link to="/" className={`text-xl text-[#0a1e3d}] font-medium`}>
               LuxeStay
             </Link>
           </div>
@@ -53,7 +46,7 @@
               className={`
                 inline-flex items-center justify-center h-10 px-6 rounded-full 
                 text-sm font-medium transition-all duration-300 shadow-md 
-                text-[${BRAND_NAVY}] bg-[${BRAND_GOLD}] hover:bg-[${BUTTON_HOVER_GOLD}] 
+                text-[#0a1e3d] bg-[#d4a574] hover:bg-[#c19563] 
                 space-x-2
               `}
             >

@@ -12,18 +12,12 @@ interface SearchInputProps {
   type?: string;
 }
 
-const COLORS = {
-  NAVY_DARK: '#0a1e3d',
-  GOLD_PRIMARY: '#d4a574',
-  GOLD_HOVER: '#c19563',
-  BORDER_GRAY: '#D1D5DB',
-};
 const HERO_IMAGE_URL = '/assets/dashboardImg.png';
 
 // --- Search Input Component ---
 const SearchInput: React.FC<SearchInputProps> = ({ icon: Icon, placeholder, type = 'text' }) => {
-  const inputStyleClasses = 'w-full px-4 py-1.5 text-sm bg-white border border-[' + COLORS.BORDER_GRAY + '] rounded-xl focus:ring-2 focus:ring-offset-2 focus:ring-offset-white focus:ring-gray-300 focus:border-transparent outline-none transition-all';
-  const iconColor = `text-[${COLORS.NAVY_DARK}]/60`; // text-[#0a1e3d]/60
+  const inputStyleClasses = 'w-full px-4 py-1.5 text-sm bg-white border border-[#D1D5DB] rounded-xl focus:ring-2 focus:ring-offset-2 focus:ring-offset-white focus:ring-gray-300 focus:border-transparent outline-none transition-all';
+  const iconColor = `text-[#0a1e3d]/60`;
 
   return (
     <div className="relative flex items-center col-span-1">
@@ -39,9 +33,6 @@ const SearchInput: React.FC<SearchInputProps> = ({ icon: Icon, placeholder, type
 
 // --- Search Form Component ---
 const SearchForm = () => {
-    const goldBg = `bg-[${COLORS.GOLD_PRIMARY}]`;
-    const goldHover = `hover:bg-[${COLORS.GOLD_HOVER}]`;
-    const navyText = `text-[${COLORS.NAVY_DARK}]`;
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -61,7 +52,7 @@ const SearchForm = () => {
             {/* Search Button */}
             <button
               type="submit"
-              className={`w-full mt-4 py-1.5 text-sm font-semibold ${goldBg} ${goldHover} ${navyText} rounded-xl h-10 transition-colors duration-200`}
+              className={`w-full mt-4 py-1.5 text-sm font-semibold bg-[#d4a574] hover:bg-[#c19563] text-[#0a1e3d] rounded-xl h-10 transition-colors duration-200`}
             >
               Search Availability
             </button>
@@ -103,9 +94,9 @@ const Header: React.FC<HeaderProps> = ({ type = "home" }) => {
       />
 
       {/* 4. Content Container */}
-      <div className="relative container mx-auto px-4 h-full flex flex-col justify-center items-left"> 
+      <div className="relative container mx-auto px-4 h-full flex flex-col justify-center items-center"> 
         
-        <div className="max-w-3xl pt-16 pb-12 text-left"> 
+        <div className="max-w-3xl pt-16 pb-12 text-center"> 
           
           <h1
             className={`

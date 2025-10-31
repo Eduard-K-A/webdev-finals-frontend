@@ -1,14 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react"; // added useCallback to stabilize handlers
 import axios from "axios";
-import {
-  User,
-  Mail,
-  Lock,
-  Eye,
-  EyeOff,
-  FileSignature,
-} from "lucide-react";
-import { Link } from "react-router-dom"; // Added for links with state
+import { User, Mail, Lock, Eye, EyeOff, FileSignature } from "lucide-react";
+import { Link } from "react-router-dom";
 
 // --- AnimatedText Component (wave animation) ---
 const AnimatedText: React.FC<{ text: string; style?: React.CSSProperties }> = ({
@@ -30,6 +23,49 @@ const AnimatedText: React.FC<{ text: string; style?: React.CSSProperties }> = ({
   );
 };
 
+// Memoize the InputField to prevent it from re-rendering unnecessarily
+const InputField = React.memo(
+  ({
+    label,
+    type,
+    placeholder,
+    value,
+    onChange,
+    icon,
+    rightIcon,
+  }: {
+    label: string;
+    type: string;
+    placeholder: string;
+    value: string;
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    icon: React.ReactNode;
+    rightIcon?: React.ReactNode;
+  }) => (
+    <div className="relative">
+      <label className="block text-sm font-medium text-[#362f22] mb-1">
+        {label}
+      </label>
+      <div className="relative">
+        <span className="absolute left-3 top-3 text-[#d4a574]">{icon}</span>
+        <input
+          type={type}
+          placeholder={placeholder}
+          value={value}
+          onChange={onChange}
+          required
+          className="w-full px-4 py-2 border border-[#d4a574]/70 bg-white text-[#362f22] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d4a574] hover:border-[#b48c5a] hover:shadow-sm transition-all pl-10"
+        />
+        {rightIcon && (
+          <span className="absolute right-3 top-3 text-[#d4a574] cursor-pointer select-none">
+            {rightIcon}
+          </span>
+        )}
+      </div>
+    </div>
+  )
+);
+
 const Register: React.FC = () => {
   // --- State Management ---
   const [username, setUsername] = useState("");
@@ -41,9 +77,23 @@ const Register: React.FC = () => {
   const [agree, setAgree] = useState(false);
   const [message, setMessage] = useState("");
 
-  // --- Base Input Style ---
-  const inputBase =
-    "w-full px-4 py-2 border border-[#d4a574]/70 bg-white text-[#362f22] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d4a574] hover:border-[#b48c5a] hover:shadow-sm transition-all pl-10";
+  // Memoize handlers to prevent new function references each render
+  const handleUsernameChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => setUsername(e.target.value),
+    []
+  );
+  const handleFirstNameChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => setFirstName(e.target.value),
+    []
+  );
+  const handleLastNameChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => setLastName(e.target.value),
+    []
+  );
+  const handleEmailChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value),
+    []
+  );
 
   // --- Handle Form Submission ---
   const handleSubmit = async (e: React.FormEvent) => {
@@ -83,39 +133,6 @@ const Register: React.FC = () => {
       }
     }
   };
-
-  // --- Input Wrapper with Label + Icon ---
-  const InputField: React.FC<{
-    label: string;
-    type: string;
-    placeholder: string;
-    value: string;
-    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    icon: React.ReactNode;
-    rightIcon?: React.ReactNode;
-  }> = ({ label, type, placeholder, value, onChange, icon, rightIcon }) => (
-    <div className="relative">
-      <label className="block text-sm font-medium text-[#362f22] mb-1">
-        {label}
-      </label>
-      <div className="relative">
-        <span className="absolute left-3 top-3 text-[#d4a574]">{icon}</span>
-        <input
-          type={type}
-          placeholder={placeholder}
-          value={value}
-          onChange={onChange}
-          required
-          className={inputBase}
-        />
-        {rightIcon && (
-          <span className="absolute right-3 top-3 text-[#d4a574] cursor-pointer select-none">
-            {rightIcon}
-          </span>
-        )}
-      </div>
-    </div>
-  );
 
   return (
     <div className="flex flex-col h-[calc(100vh-72px)] bg-[#f5f0eb]">
@@ -170,7 +187,7 @@ const Register: React.FC = () => {
                   type="text"
                   placeholder="Enter your username"
                   value={username}
-                  onChange={(e) => setUsername(e.target.value)}
+                  onChange={handleUsernameChange} // uses memoized handler
                   icon={<User className="w-5 h-5" />}
                 />
 
@@ -179,7 +196,7 @@ const Register: React.FC = () => {
                   type="text"
                   placeholder="Your first name"
                   value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
+                  onChange={handleFirstNameChange}
                   icon={<FileSignature className="w-5 h-5" />}
                 />
 
@@ -188,7 +205,7 @@ const Register: React.FC = () => {
                   type="text"
                   placeholder="Your last name"
                   value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
+                  onChange={handleLastNameChange}
                   icon={<FileSignature className="w-5 h-5" />}
                 />
 
@@ -197,7 +214,7 @@ const Register: React.FC = () => {
                   type="email"
                   placeholder="your.email@email.com"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={handleEmailChange}
                   icon={<Mail className="w-5 h-5" />}
                 />
 
@@ -217,7 +234,7 @@ const Register: React.FC = () => {
                       onChange={(e) => setPassword(e.target.value)}
                       required
                       minLength={6}
-                      className={inputBase}
+                      className="w-full px-4 py-2 border border-[#d4a574]/70 bg-white text-[#362f22] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d4a574] hover:border-[#b48c5a] hover:shadow-sm transition-all pl-10"
                     />
                     <button
                       type="button"

@@ -43,6 +43,9 @@ export interface Photo  {
 
 //define the shape of room object
 export interface Room {
+  rating: number;
+  reviewCount: number;
+  amenities: any;
   _id: string;
   title: string;
   description: string;
@@ -51,4 +54,5 @@ export interface Room {
   maxPeople: number;
   photos: Photo[]; //array of photo objects
   isAvailable: boolean;
+  isTopRated?: boolean;
 };

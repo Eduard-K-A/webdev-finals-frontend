@@ -1,5 +1,4 @@
 import { useEffect, useState, useMemo, useCallback } from 'react';
-import axios from 'axios';
 import { Home, TrendingUp, Star } from 'lucide-react'; 
 
 import type { Room } from '../types'; 

@@ -30,6 +30,18 @@ body {
 .animate-rainbow {
   animation: rainbow 5s linear infinite;
 }
+
+/* Style for the active range/track and the thumb*/
+.range-slider [data-slot='range'] {
+    background-color: var(--color-brand-gold) !important;
+}
+
+.range-slider [data-slot='thumb'] {
+    background-color: var(--color-brand-gold) !important;
+    border-color: var(--color-brand-gold) !important;
+    box-shadow: 0 0 0 4px white, 0 0 0 6px var(--color-brand-gold);
+}
+
 @keyframes fade-in {
   from { opacity: 0; }
   to { opacity: 1; }

@@ -1,204 +1,270 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 import axios from 'axios';
-import type { Room } from '../types';
+import { Home, TrendingUp, Star } from 'lucide-react'; 
+
+import type { Room } from '../types'; 
+import mockRooms from '../data/mockRooms.json';
+import FilterSidebar from '../components/Rooms/FilterSidebar'; 
+import RoomCard from '../components/Rooms/RoomCard'; 
+import Footer from '../components/Dashboard/Footer';
+
+
+// 1. FIXED: Update capacity to number[] for multi-select
+interface FilterState {
+  roomTypes: string[];
+  capacity: number[]; // Change from number | null to number[]
+  priceRange: [number, number];
+  minRating: number | null;
+}
+
+const initialFilterState: FilterState = {
+  roomTypes: [],
+  // 2. FIXED: Initialize capacity as an empty array
+  capacity: [], 
+  priceRange: [0, 500], 
+  minRating: null,
+};
 
 function Rooms() {
-  const [rooms, setRooms] = useState<Room[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [filter, setFilter] = useState<'all' | 'available' | 'unavailable'>('all');
+  const [rooms, setRooms] = useState<Room[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [filters, setFilters] = useState<FilterState>(initialFilterState);
+  const [showFilters, setShowFilters] = useState(false);
 
-  const fetchRooms = async () => {
-    try {
-      setLoading(true);
-      setError(null);
 
-      const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
-      const res = await axios.get(`${apiBaseUrl}/api/rooms`);
-      setRooms(res.data.rooms || []);
-    } catch (err) {
-      console.error('Failed to fetch rooms', err);
-      setError('Failed to load rooms. Please try again later.');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const fetchRooms = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      await new Promise(resolve => setTimeout(resolve, 500)); 
 
-  useEffect(() => {
-    fetchRooms();
+      // NOTE: Ensure mockRooms.json matches your Room type structure
+      const mockResponse = { data: { rooms: mockRooms } }; 
+      setRooms(mockResponse.data.rooms || []);
+      
+    } catch (err) {
+      console.error('Failed to fetch rooms', err);
+      setError('Failed to load rooms. Please try again later.');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-    const handler = (e: CustomEvent<Room>) => {
-      const newRoom = e.detail;
-      if (newRoom) {
-        setRooms(prev => [newRoom, ...prev]);
-      }
-    };
-    
-    window.addEventListener('roomCreated', handler as EventListener);
-    return () => window.removeEventListener('roomCreated', handler as EventListener);
-  }, []);
+  useEffect(() => {
+    fetchRooms();
+    const handler = (e: CustomEvent<Room>) => {
+      const newRoom = e.detail;
+      if (newRoom) {
+        setRooms(prev => [newRoom, ...prev]);
+      }
+    };
+    window.addEventListener('roomCreated', handler as EventListener);
+    return () => window.removeEventListener('roomCreated', handler as EventListener);
+  }, [fetchRooms]);
 
-  const filteredRooms = rooms.filter(room => {
-    if (filter === 'available') return room.isAvailable;
-    if (filter === 'unavailable') return !room.isAvailable;
-    return true;
-  });
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center p-12">
-        <div className="text-center">
-          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-blue-600 border-r-transparent"></div>
-          <p className="mt-4 text-gray-600">Loading rooms...</p>
-        </div>
-      </div>
-    );
-  }
+  // New filtering logic using the combined state
+  const filteredRooms = useMemo(() => {
+    return rooms.filter(room => {
+      const { roomTypes, capacity, priceRange, minRating } = filters;
+      
+      // Price Range Filter
+      if (room.pricePerNight < priceRange[0] || room.pricePerNight > priceRange[1]) return false;
+      
+      // Room Type Filter (Multi-select: Room type must be included in the selected types)
+      if (roomTypes.length > 0 && !roomTypes.includes(room.type)) return false;
+      
+      // 3. FIXED: Capacity Filter (Multi-select: Room's maxPeople must be an EXACT match for ANY selected capacity)
+      if (capacity.length > 0 && !capacity.includes(room.maxPeople)) return false;
+      
+      // Minimum Rating Filter
+      if (minRating !== null && (room.rating || 0) < minRating) return false;
+      
+      return true;
+    });
+  }, [rooms, filters]);
 
-  if (error) {
-    return (
-      <div className="p-4">
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
-          <p className="text-red-800 mb-3">{error}</p>
-          <button
-            onClick={fetchRooms}
-            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
-          >
-            Try Again
-          </button>
-        </div>
-      </div>
-    );
-  }
+  // Derive stats for the integrated header section
+  const totalRooms = rooms.length;
+  const availableRooms = rooms.filter(r => r.isAvailable).length;
+  const avgRating = totalRooms > 0 
+    ? (rooms.reduce((sum, r) => sum + (r.rating || 0), 0) / totalRooms).toFixed(1)
+    : 'N/A';
+  
+  // Check if any filter is active (Capacity check is now for an empty array)
+  const isFilterActive = JSON.stringify(filters) !== JSON.stringify(initialFilterState);
+  
+  const clearFilters = () => setFilters(initialFilterState);
+  
+  const updateFilters = (key: keyof FilterState, value: any) => {
+    setFilters(prev => ({ ...prev, [key]: value }));
+  };
 
-  return (
-    <div className="p-4">
-      {/* Filter Controls */}
-      <div className="mb-6 flex items-center gap-2">
-        <span className="text-gray-700 font-medium">Filter:</span>
-        <button
-          onClick={() => setFilter('all')}
-          className={`px-4 py-2 rounded transition-colors ${
-            filter === 'all'
-              ? 'bg-blue-600 text-white'
-              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-          }`}
-        >
-          All ({rooms.length})
-        </button>
-        <button
-          onClick={() => setFilter('available')}
-          className={`px-4 py-2 rounded transition-colors ${
-            filter === 'available'
-              ? 'bg-green-600 text-white'
-              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-          }`}
-        >
-          Available ({rooms.filter(r => r.isAvailable).length})
-        </button>
-        <button
-          onClick={() => setFilter('unavailable')}
-          className={`px-4 py-2 rounded transition-colors ${
-            filter === 'unavailable'
-              ? 'bg-gray-600 text-white'
-              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-          }`}
-        >
-          Unavailable ({rooms.filter(r => !r.isAvailable).length})
-        </button>
-      </div>
 
-      {/* Rooms Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredRooms.length === 0 && (
-          <div className="col-span-full text-center py-12">
-            <p className="text-gray-500 text-lg">
-              {filter === 'all' 
-                ? 'No rooms available yet' 
-                : `No ${filter} rooms found`}
-            </p>
-          </div>
-        )}
-        
-        {filteredRooms.map(room => (
-          <div
-            key={room._id}
-            className={`border rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-shadow ${
-              !room.isAvailable ? 'opacity-75' : ''
-            }`}
-          >
-            {/* Room Image */}
-            <div className="relative">
-              {room.photos && room.photos[0] ? (
-                <img
-                  src={room.photos[0].url}
-                  alt={room.title}
-                  className="w-full h-48 object-cover"
-                  onError={(e) => {
-                    e.currentTarget.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%23e5e7eb" width="400" height="300"/%3E%3Ctext x="50%25" y="50%25" text-anchor="middle" fill="%239ca3af" font-size="16" dy=".3em"%3EImage not available%3C/text%3E%3C/svg%3E';
-                  }}
-                />
-              ) : (
-                <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
-                  <span className="text-gray-400">No image</span>
-                </div>
-              )}
-              
-              {/* Availability Badge */}
-              <div className={`absolute top-3 right-3 px-3 py-1 rounded-full text-sm font-semibold ${
-                room.isAvailable 
-                  ? 'bg-green-500 text-white' 
-                  : 'bg-gray-500 text-white'
-              }`}>
-                {room.isAvailable ? 'Available' : 'Unavailable'}
-              </div>
-            </div>
+  if (loading) {
+    // ... (loading component) ...
+    return (
+      <div className="flex items-center justify-center p-12 h-screen">
+        <div className="text-center">
+          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-[#d4a574] border-r-transparent"></div> 
+          <p className="mt-4 text-gray-600">Loading luxury rooms...</p>
+        </div>
+      </div>
+    );
+  }
 
-            {/* Room Details */}
-            <div className="p-4">
-              <h3 className="font-semibold text-xl mb-2 text-gray-800">
-                {room.title}
-              </h3>
-              
-              <div className="flex items-center gap-2 text-sm text-gray-600 mb-3">
-                <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded">
-                  {room.type}
-                </span>
-                <span className="flex items-center gap-1">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                  </svg>
-                  Up to {room.maxPeople} {room.maxPeople === 1 ? 'guest' : 'guests'}
-                </span>
-              </div>
-              
-              <p className="text-gray-700 text-sm mb-4 line-clamp-2">
-                {room.description}
-              </p>
-              
-              <div className="flex items-center justify-between">
-                <div className="font-bold text-2xl text-blue-600">
-                  ${room.pricePerNight}
-                  <span className="text-sm text-gray-600 font-normal"> / night</span>
-                </div>
-                
-                <button
-                  disabled={!room.isAvailable}
-                  className={`px-4 py-2 rounded font-medium transition-colors ${
-                    room.isAvailable
-                      ? 'bg-blue-600 text-white hover:bg-blue-700'
-                      : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                  }`}
-                >
-                  {room.isAvailable ? 'View Details' : 'Unavailable'}
-                </button>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
+  if (error) {
+     return (
+        <div className="p-4">
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
+                <p className="text-red-800 mb-3">{error}</p>
+                <button
+                    onClick={fetchRooms}
+                    className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+                >
+                    Try Again
+                </button>
+            </div>
+        </div>
+    );
+  }
+
+  // Helper component for the individual stat cards (remains the same)
+  const StatCard = ({ icon: Icon, title, value, variant }: { icon: React.ElementType, title: string, value: string | number, variant: 'gold' | 'navy' }) => {
+    // Determine icon and background classes based on variant
+    const iconColorClass = variant === 'gold' ? 'text-[#d4a574]' : 'text-[#0a1e3d]';
+    const bgColorClass = variant === 'gold' ? 'bg-[#d4a574]/10' : 'bg-[#0a1e3d]/10';
+    
+    // Icon for average rating stat
+    const isRating = title.includes('Rating');
+
+    return (
+      <div 
+        className="bg-white rounded-2xl p-6 border-2 border-gray-200 hover:border-[#d4a574] transition-all shadow-sm hover:shadow-md cursor-default"
+      >
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-gray-600 text-sm mb-1">{title}</p>
+            <p className="text-3xl text-[#0a1e3d] flex items-center gap-2">
+              {value}
+              {isRating && <Star className="h-6 w-6 text-[#d4a574] fill-[#d4a574]" />}
+            </p>
+          </div>
+          <div className={`w-12 h-12 ${bgColorClass} rounded-full flex items-center justify-center`}>
+            <Icon className={`h-6 w-6 ${iconColorClass}`} />
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="w-full min-h-screen">
+      
+      {/* 1. Header and Stats Section (Integrated) */}
+      <div className="bg-gradient-to-b from-[#f8f9fa] to-white border-b border-gray-200">
+        <div className="container mx-auto px-4 py-12">
+          
+          {/* Page Title & Subtitle */}
+          <div className="text-center mb-8">
+            <h1 className="text-4xl md:text-5xl text-[#0a1e3d] mb-3 font-medium">
+              Available Rooms & Suites
+            </h1>
+            <p className="text-gray-600 text-lg">
+              Discover luxury accommodations crafted for your comfort and style
+            </p>
+          </div>
+
+          {/* Stats Cards Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+            <StatCard 
+              icon={Home} 
+              title="Total Rooms" 
+              value={totalRooms} 
+              variant="gold" 
+            />
+            <StatCard 
+              icon={TrendingUp} 
+              title="Available Now" 
+              value={availableRooms} 
+              variant="navy" 
+            />
+            <StatCard 
+              icon={Star} 
+              title="Average Rating" 
+              value={avgRating} 
+              variant="gold" 
+            />
+          </div>
+          
+        </div>
+      </div>
+      
+      {/* 2. Main Content Wrapper */}
+      <div className="container mx-auto px-4 py-12">
+        <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl text-[#0a1e3d] font-medium">
+                {filteredRooms.length} {filteredRooms.length === 1 ? 'Room' : 'Rooms'} Found
+            </h2>
+            
+            {/* Mobile Filter Toggle Button */}
+            <button
+                onClick={() => setShowFilters(!showFilters)}
+                className="lg:hidden px-4 py-2 rounded-xl border-2 border-[#0a1e3d] text-[#0a1e3d] hover:bg-[#0a1e3d] hover:text-white transition-colors font-medium"
+            >
+                <Home className="h-4 w-4 mr-2 inline-block" /> 
+                Filters {isFilterActive && <span className="ml-2 bg-[#d4a574] text-[#0a1e3d] rounded-full px-2 py-0.5 text-xs font-semibold">!</span>}
+            </button>
+        </div>
+
+        {/* 3. Filter Sidebar + Room List Grid */}
+        {/* FIX APPLIED: Added lg:items-start for sticky sidebar stop point */}
+        <div className="lg:grid lg:grid-cols-4 lg:gap-8 **lg:items-start**"> 
+          
+          {/* Column 1: Filter Sidebar (1/4 width on large screens) */}
+          <FilterSidebar
+            className="lg:col-span-1"
+            filters={filters}
+            updateFilters={updateFilters}
+            clearFilters={clearFilters}
+            isFilterActive={isFilterActive}
+            showFilters={showFilters} 
+            setShowFilters={setShowFilters}
+          />
+
+          {/* Column 2: Room List (3/4 width on large screens) */}
+          <div className="lg:col-span-3 space-y-6">
+            
+            {filteredRooms.length === 0 && (
+              <div className="col-span-full text-center py-12">
+                <p className="text-gray-500 text-lg">
+                  No rooms match your current filters.
+                </p>
+                {isFilterActive && (
+                  <button onClick={clearFilters} className="mt-4 text-[#d4a574] hover:text-[#c19563] font-medium transition-colors">
+                    Clear Filters
+                  </button>
+                )}
+              </div>
+            )}
+            
+            {/* Render the new horizontal RoomCard component */}
+            {filteredRooms.map(room => (
+              <RoomCard
+                key={room._id}
+                room={room}
+                onViewDetails={() => console.log('View details for', room.title)} 
+              />
+            ))}
+          </div>
+
+        </div>
+      </div>
+      {/* 4. Footer Component */}
+      <Footer />
+    </div>
+  );
 }
 
 export default Rooms;

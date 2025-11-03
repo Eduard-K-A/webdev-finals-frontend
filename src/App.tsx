@@ -10,6 +10,7 @@ import Terms from "./pages/TermsAndConditions";
 import Policy from "./pages/PrivacyPolicy";
 import ManageRoom from "./pages/ManageRoom";
 import Rooms from "./pages/Rooms";
+import AdminLogin from "./pages/Login/AdminLogin";
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
           <Route path="/terms" element={<Terms />} />
           <Route path="/policy" element={<Policy />} />
           <Route path="/ManageRoom" element={<ManageRoom />} />
+          <Route path="/Admin/Login" element={<AdminLogin />} />
 
           <Route path="*" element={<div>404 Not Found</div>} />
         </Routes>

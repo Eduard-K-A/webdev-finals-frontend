@@ -43,16 +43,17 @@ export interface Photo  {
 
 //define the shape of room object
 export interface Room {
-  rating: number;
-  reviewCount: number;
-  amenities: any;
   _id: string;
   title: string;
   description: string;
-  type: string;
+  type: "Single" | "Double" | "Suite";
   pricePerNight: number;
   maxPeople: number;
-  photos: Photo[]; //array of photo objects
+  amenities: string[];
+  photos: Photo[];
   isAvailable: boolean;
-  isTopRated?: boolean;
-};
+  rating?: number; 
+  averageRating: number;
+  createdAt: string;
+  updatedAt: string;
+}

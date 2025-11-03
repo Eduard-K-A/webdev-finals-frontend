@@ -156,8 +156,20 @@ const SignIn: React.FC = () => {
                   href="/Register"
                   className="text-[#d4a574] font-medium hover:underline"
                 >
-                  Register here
-                </a>
+                  Register here 
+                </a> 
+                  
+              </p>
+
+                <p className="text-center text-sm text-gray-500 mt-2">
+                Log in as an Admin {" "}
+                <a
+                  href="/Admin/Login"
+                  className="text-[#d4a574] font-medium hover:underline"
+                >
+                 Here
+                </a> 
+                  
               </p>
             </div>
           </div>

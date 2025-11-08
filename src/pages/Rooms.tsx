@@ -19,7 +19,7 @@ interface FilterState {
 const initialFilterState: FilterState = {
   roomTypes: [],
   capacity: [], 
-  priceRange: [0, 500], 
+  priceRange: [0, Infinity], 
   minRating: null,
 };
 

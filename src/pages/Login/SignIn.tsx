@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { User, Lock } from "lucide-react";
+import { Link } from "react-router-dom";
 
 // --- AnimatedText (same as Register) ---
 const AnimatedText: React.FC<{ text: string; style?: React.CSSProperties }> = ({ text, style }) => (
@@ -152,12 +153,12 @@ const SignIn: React.FC = () => {
 
               <p className="text-center text-sm text-gray-500 mt-6">
                 Don't have an account?{" "}
-                <a
-                  href="/Register"
+                <Link
+                  to="/Register"
                   className="text-[#d4a574] font-medium hover:underline"
                 >
                   Register here 
-                </a> 
+                </Link> 
                   
               </p>
             </div>

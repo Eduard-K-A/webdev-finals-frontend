@@ -13,7 +13,7 @@ const INITIAL_STATE: SearchState = {
         children: 0,
         rooms: 1,
     }
-};
+};//
 
 // Create Context with the defined type and a default mock value
 const SearchContext = createContext<SearchContextType | undefined>(undefined);

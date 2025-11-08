@@ -56,7 +56,7 @@ const InputField: React.FC<InputFieldProps> = ({
 );
 
 const SignIn: React.FC = () => {
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
@@ -68,7 +68,7 @@ const SignIn: React.FC = () => {
 
     try {
       const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
-      const res = await axios.post(`${apiBaseUrl}/auth/login`, { username, password });
+      const res = await axios.post(`${apiBaseUrl}/auth/login`, { email, password });
 
       setIsSuccess(true);
       setMessage(res.data.message || "Log in successful!");
@@ -126,11 +126,11 @@ const SignIn: React.FC = () => {
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 <InputField
-                  label="Username"
+                  label="Email"
                   type="text"
-                  placeholder="Enter your username"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="Enter your Email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   icon={<User className="w-5 h-5" />}
                 />
 

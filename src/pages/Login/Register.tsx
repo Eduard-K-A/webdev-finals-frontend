@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from "react"; // added useCallback to stabilize handlers
 import axios from "axios";
-import { User, Mail, Lock, Eye, EyeOff, FileSignature } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, FileSignature } from "lucide-react";
 import { Link } from "react-router-dom";
 
 // --- AnimatedText Component (wave animation) ---

@@ -68,7 +68,6 @@ const InputField = React.memo(
 
 const Register: React.FC = () => {
   // --- State Management ---
-  const [username, setUsername] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -78,10 +77,7 @@ const Register: React.FC = () => {
   const [message, setMessage] = useState("");
 
   // Memoize handlers to prevent new function references each render
-  const handleUsernameChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => setUsername(e.target.value),
-    []
-  );
+
   const handleFirstNameChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => setFirstName(e.target.value),
     []
@@ -110,7 +106,6 @@ const Register: React.FC = () => {
         import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
       const res = await axios.post(`${apiBaseUrl}/auth/Register`, {
-        username,
         firstName,
         lastName,
         email,
@@ -119,7 +114,6 @@ const Register: React.FC = () => {
       setMessage(res.data.message || "Registered successfully!");
 
       // Reset fields after success
-      setUsername("");
       setFirstName("");
       setLastName("");
       setEmail("");
@@ -182,14 +176,7 @@ const Register: React.FC = () => {
 
               {/* Registration Form */}
               <form onSubmit={handleSubmit} className="space-y-4">
-                <InputField
-                  label="Username"
-                  type="text"
-                  placeholder="Enter your username"
-                  value={username}
-                  onChange={handleUsernameChange} // uses memoized handler
-                  icon={<User className="w-5 h-5" />}
-                />
+               
 
                 <InputField
                   label="First Name"

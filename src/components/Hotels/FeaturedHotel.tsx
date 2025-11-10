@@ -86,6 +86,7 @@ const FeaturedHotels: React.FC<FeaturedHotelsProps> = () => {
                                     <div
                                         className="w-full text-center py-3 bg-[#0a1e3d] hover:bg-[#0a1e3d]/90 text-white rounded-xl text-base font-semibold transition-colors"
                                     >
+                                        
                                         View Details
                                     </div>
                                 </div>

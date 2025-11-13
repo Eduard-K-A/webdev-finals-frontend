@@ -23,7 +23,7 @@ const AdminNavBar: React.FC = () => {
   };
 
   return (
-    <div className={`sticky top-0 z-50 w-full bg-white border-b-2 border-[#d4a574] shadow-sm px-8 py-3`}>
+    <div className={`sticky top-0 z-50 w-full bg-white border-b-2 border-[#d4a574] shadow-sm px-8 py-4`}>
       <div className="flex justify-between items-center h-full">
         
         {/* 1. Logo & Brand Section (Left) */}

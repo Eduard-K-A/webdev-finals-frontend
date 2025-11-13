@@ -8,6 +8,7 @@ const NavBar: React.FC = () => {
   const location = useLocation();
   const { isLoggedIn, isAdmin, user, logout } = useAuth();
 
+  console.log('user:', user?.firstName, 'isAdmin:', isAdmin, 'isLoggedIn:', isLoggedIn);
   // Show admin navbar if user is logged in as admin
   if (isLoggedIn && isAdmin) {
     return <AdminNavBar />;

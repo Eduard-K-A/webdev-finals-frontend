@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { User, Lock } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
 // --- AnimatedText (same as Register) ---
 const AnimatedText: React.FC<{ text: string; style?: React.CSSProperties }> = ({ text, style }) => (
@@ -60,6 +61,8 @@ const SignIn: React.FC = () => {
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
+  const { login } = useAuth();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,7 +75,18 @@ const SignIn: React.FC = () => {
 
       setIsSuccess(true);
       setMessage(res.data.message || "Log in successful!");
-      localStorage.setItem("user", JSON.stringify(res.data.user));
+      
+      // Use AuthContext to save user
+      login(res.data.user);
+      
+      // Redirect after 1 second
+      setTimeout(() => {
+        if (res.data.user.role === 'admin') {
+          navigate('/');
+        } else {
+          navigate('/');
+        }
+      }, 1000);
     } catch (err) {
       if (axios.isAxiosError(err) && err.response) {
         setIsSuccess(false);

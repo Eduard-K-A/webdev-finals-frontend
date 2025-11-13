@@ -39,7 +39,7 @@ export interface Photo  {
   url: string;
   publicId?: string;
   originalName?: string;
-};
+}
 
 //define the shape of room object
 export interface Room {
@@ -56,4 +56,24 @@ export interface Room {
   averageRating: number;
   createdAt: string;
   updatedAt: string;
+}
+
+//user types
+export interface User {
+  _id: string;
+  id?: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  phone?: string;
+  role: 'user' | 'admin';
+  roles?: string[]; // Additional field for roles array from backend
+}
+
+export interface AuthContextType{
+    user: User | null;
+  isLoggedIn: boolean;
+  isAdmin: boolean;
+  logout: () => void;
+  login: (userData: User) => void;
 }

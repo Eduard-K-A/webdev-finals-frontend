@@ -147,7 +147,7 @@ const Register: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-72px)] bg-[#f5f0eb]">
+    <div className="flex flex-col h-[calc(100vh-72px)] bg-[#FFFFFF]">
       {/* Main Content */}
       <div className="flex flex-col md:flex-row flex-1">
         {/* Left side - marketing text */}

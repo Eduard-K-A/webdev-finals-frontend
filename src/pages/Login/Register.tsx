@@ -1,7 +1,8 @@
 import React, { useState, useCallback } from "react"; // added useCallback to stabilize handlers
 import axios from "axios";
 import { Mail, Lock, Eye, EyeOff, FileSignature } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
 // --- AnimatedText Component (wave animation) ---
 const AnimatedText: React.FC<{ text: string; style?: React.CSSProperties }> = ({
@@ -75,6 +76,9 @@ const Register: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [agree, setAgree] = useState(false);
   const [message, setMessage] = useState("");
+  const [isSuccess, setIsSuccess] = useState(false);
+  const navigate = useNavigate();
+  const { login } = useAuth();
 
   // Memoize handlers to prevent new function references each render
 
@@ -95,6 +99,7 @@ const Register: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setMessage("");
+    setIsSuccess(false);
 
     if (!agree) {
       setMessage("Please agree to the terms and privacy policy.");
@@ -111,7 +116,14 @@ const Register: React.FC = () => {
         email,
         password,
       });
+      
+      setIsSuccess(true);
       setMessage(res.data.message || "Registered successfully!");
+      
+      // Automatically log in the user with the returned data
+      if (res.data.user) {
+        login(res.data.user);
+      }
 
       // Reset fields after success
       setFirstName("");
@@ -119,7 +131,13 @@ const Register: React.FC = () => {
       setEmail("");
       setPassword("");
       setAgree(false);
+      
+      // Redirect to home page after 1 second
+      setTimeout(() => {
+        navigate('/');
+      }, 1000);
     } catch (err) {
+      setIsSuccess(false);
       if (axios.isAxiosError(err) && err.response) {
         setMessage(err.response.data.message || "Registration failed");
       } else {
@@ -165,7 +183,7 @@ const Register: React.FC = () => {
               {message && (
                 <p
                   className={`text-center mb-4 ${
-                    message.toLowerCase().includes("success")
+                    isSuccess
                       ? "text-[#d4a574]"
                       : "text-red-600"
                   }`}

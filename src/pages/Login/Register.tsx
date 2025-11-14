@@ -116,10 +116,10 @@ const Register: React.FC = () => {
         email,
         password,
       });
-      
+
       setIsSuccess(true);
       setMessage(res.data.message || "Registered successfully!");
-      
+
       // Automatically log in the user with the returned data
       if (res.data.user) {
         login(res.data.user);
@@ -131,10 +131,10 @@ const Register: React.FC = () => {
       setEmail("");
       setPassword("");
       setAgree(false);
-      
+
       // Redirect to home page after 1 second
       setTimeout(() => {
-        navigate('/');
+        navigate("/");
       }, 1000);
     } catch (err) {
       setIsSuccess(false);
@@ -183,9 +183,7 @@ const Register: React.FC = () => {
               {message && (
                 <p
                   className={`text-center mb-4 ${
-                    isSuccess
-                      ? "text-[#d4a574]"
-                      : "text-red-600"
+                    isSuccess ? "text-[#d4a574]" : "text-red-600"
                   }`}
                 >
                   {message}
@@ -194,8 +192,6 @@ const Register: React.FC = () => {
 
               {/* Registration Form */}
               <form onSubmit={handleSubmit} className="space-y-4">
-               
-
                 <InputField
                   label="First Name"
                   type="text"

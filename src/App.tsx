@@ -4,7 +4,7 @@ import { SearchContextProvider } from "./context/SearchContext";
 import { AuthContextProvider } from "./context/AuthContext";
 import MyBookings from "./pages/User/MyBooking";
 import Book from "./pages/User/Book";
-
+import User from "./pages/Admin/User";
 import SignIn from "./pages/Login/SignIn";
 import Register from "./pages/Login/Register";
 import NavBar from "./components/Dashboard/NavBar";
@@ -32,7 +32,8 @@ function App() {
             <Route path="/Hotels/:id" element={<RoomDetail />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/policy" element={<Policy />} />
-            <Route path="/ManageRoom" element={<ManageRoom />} />
+            <Route path="/Admin/ManageRoom" element={<ManageRoom />} />
+            <Route path="/Admin/Users" element={<User />} />
 
             <Route path="*" element={<div>404 Not Found</div>} />
           </Routes>

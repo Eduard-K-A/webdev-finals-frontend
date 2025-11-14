@@ -190,7 +190,7 @@ const ManageRoom: React.FC = () => {
   };
 
   return (
-    <div className="fixed inset-0 bg-white flex flex-col font-sans overflow-hidden pt-[72px]">
+    <div className="fixed inset-0 flex flex-col font-sans overflow-hidden pt-[72px] h-full">
       {/* --- Header --- */}
       <header className="border-b border-gray-200 px-8 py-4 flex justify-between items-center">
         <div>
@@ -206,9 +206,9 @@ const ManageRoom: React.FC = () => {
       </header>
 
       {/* --- Main Content --- */}
-      <div className="flex flex-1 relative">
+      <div className="flex flex-1 h-full">
         {/* Left Column: Form Section */}
-        <div className={`transition-all duration-300 ${isPreviewOpen ? 'w-1/2' : 'w-full'} px-10 py-8`}>
+        <div className={`transition-all duration-300 ${isPreviewOpen ? 'w-1/2' : 'w-full'} px-10 py-8 overflow-y-auto`}>
           <form onSubmit={handleSubmit} className="space-y-5 text-gray-700">
             {/* Title */}
             <div>
@@ -331,9 +331,9 @@ const ManageRoom: React.FC = () => {
         </div>
 
         {/* Right Column: Existing Rooms + Image Preview Overlay */}
-        <div className="w-1/2 border-l border-gray-200 bg-gray-50 p-6 overflow-y-auto relative">
+        <div className="w-1/2 border-l border-gray-200 bg-gray-50 p-6 relative flex flex-col h-full">
           {/* --- Existing Room List --- */}
-          <div>
+          <div className={`flex-1 min-h-0 overflow-y-auto transition-opacity duration-300 ${isPreviewOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
             <h2 className="text-lg font-semibold text-gray-700 mb-4">Existing Rooms</h2>
             {rooms.length > 0 ? (
               <ul className="space-y-3">
@@ -366,7 +366,7 @@ const ManageRoom: React.FC = () => {
 
           {/* --- Image Preview Overlay --- */}
           {isPreviewOpen && (
-            <div className="absolute inset-0 bg-gray-50 z-10 p-6 overflow-y-auto transition-transform duration-300">
+            <div className="absolute inset-0 bg-gray-50 z-10 p-6 overflow-y-auto transition-opacity duration-300">
               <h2 className="text-lg font-semibold text-gray-700 mb-4">Image Preview</h2>
 
               {previewUrls.length > 0 ? (

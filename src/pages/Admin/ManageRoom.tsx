@@ -13,6 +13,9 @@ import { useNavigate } from 'react-router-dom';
  * - Modal preview with navigation arrows
  * - Right column shows Existing Rooms (sticky title) with independent scrolling
  * - Image previews below upload with removable X buttons
+ * - Max 10 images
+ * - Button theme: #d4a574
+ * - Shows live counter and max images message
  */
 
 const ManageRoom: React.FC = () => {
@@ -57,13 +60,27 @@ const ManageRoom: React.FC = () => {
     }
   };
 
-  // --- Handle File Upload Selection ---
+  // --- Handle File Upload Selection (max 10) ---
   const handleFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
     const newFiles = Array.from(e.target.files);
-    setImages(prev => [...prev, ...newFiles]);
-    const newPreviews = newFiles.map(file => URL.createObjectURL(file));
-    setPreviewUrls(prev => [...prev, ...newPreviews]);
+
+    const totalImages = images.length + newFiles.length;
+    if (totalImages > 10) {
+      const allowedFiles = newFiles.slice(0, 10 - images.length);
+      setImages(prev => [...prev, ...allowedFiles]);
+      const newPreviews = allowedFiles.map(file => URL.createObjectURL(file));
+      setPreviewUrls(prev => [...prev, ...newPreviews]);
+      setMessage('Maximum 10 images allowed');
+    } else {
+      setImages(prev => [...prev, ...newFiles]);
+      const newPreviews = newFiles.map(file => URL.createObjectURL(file));
+      setPreviewUrls(prev => [...prev, ...newPreviews]);
+      setMessage('');
+    }
+
+    // Clear input to allow re-selection
+    (e.target as HTMLInputElement).value = '';
   };
 
   // --- Reset Form ---
@@ -274,17 +291,23 @@ const ManageRoom: React.FC = () => {
               />
             </div>
 
-            {/* Images */}
-            <div>
-              <label className="block text-sm font-medium mb-2">Upload Images (max 10)</label>
-              <input
-                id="images"
-                type="file"
-                accept="image/*"
-                multiple
-                onChange={handleFiles}
-                className="block w-full text-sm text-gray-600"
-              />
+            {/* --- Images + Live Counter --- */}
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <label className="block text-sm font-medium mb-2">Upload Images (max 10)</label>
+                <input
+                  id="images"
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={handleFiles}
+                  className="block w-full text-sm text-gray-600"
+                  disabled={images.length >= 10}
+                />
+              </div>
+              <div className="ml-4 text-sm text-gray-500 mt-6">
+                {images.length} / 10 images uploaded
+              </div>
             </div>
 
             {/* --- Image Preview Below Upload --- */}
@@ -295,22 +318,22 @@ const ManageRoom: React.FC = () => {
                     <img
                       src={url}
                       alt={`Preview ${idx + 1}`}
-                      className="w-full h-48 object-cover rounded-md border border-gray-200 shadow-sm"
+                      className="w-full h-48 object-cover rounded-md border border-gray-200 shadow-sm cursor-pointer"
+                      onClick={() => setModalImageIndex(idx)}
                     />
-                    {/* Hover overlay */}
-                    <div className="absolute inset-0 bg-gray-700 bg-opacity-0 group-hover:bg-opacity-40 transition flex items-center justify-center rounded-md">
+                    <div className="absolute inset-0 bg-gray-700 bg-opacity-0 group-hover:bg-opacity-40 transition flex items-center justify-center rounded-md pointer-events-none">
                       <span className="text-white text-sm opacity-0 group-hover:opacity-100 transition">
                         Preview Image
                       </span>
                     </div>
-                    {/* Remove button */}
                     <button
                       type="button"
-                      onClick={() => {
+                      onClick={(e) => {
+                        e.stopPropagation();
                         setPreviewUrls(prev => prev.filter((_, i) => i !== idx));
                         setImages(prev => prev.filter((_, i) => i !== idx));
                       }}
-                      className="absolute top-1 right-1 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-red-700 transition"
+                      className="absolute top-1 right-1 bg-[#d4a574] text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-[#b88f5a] transition"
                     >
                       ×
                     </button>
@@ -319,13 +342,18 @@ const ManageRoom: React.FC = () => {
               </div>
             )}
 
+            {/* --- Maximum images message above buttons --- */}
+            {images.length === 10 && (
+              <p className="text-sm text-red-500 mb-2">Maximum 10 images allowed</p>
+            )}
+
             {/* Submit + Cancel Buttons */}
             <div className="pt-4 flex space-x-2">
               <button
                 type="submit"
                 disabled={loading}
                 className={`px-5 py-2.5 rounded-md text-white ${
-                  loading ? 'bg-gray-400' : 'bg-blue-600 hover:bg-blue-700'
+                  loading ? 'bg-gray-400' : 'bg-[#d4a574] hover:bg-[#b88f5a]'
                 } transition`}
               >
                 {loading ? 'Uploading...' : editingRoomId ? 'Update Room' : 'Create Room'}
@@ -335,7 +363,7 @@ const ManageRoom: React.FC = () => {
                 <button
                   type="button"
                   onClick={resetForm}
-                  className="px-5 py-2.5 rounded-md text-white bg-gray-500 hover:bg-gray-600 transition"
+                  className="px-5 py-2.5 rounded-md text-white bg-[#d4a574] hover:bg-[#b88f5a] transition"
                 >
                   Cancel
                 </button>
@@ -367,13 +395,13 @@ const ManageRoom: React.FC = () => {
                   <div className="space-x-2">
                     <button
                       onClick={() => handleEditRoom(room)}
-                      className="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600"
+                      className="px-3 py-1 bg-[#d4a574] text-white rounded hover:bg-[#b88f5a]"
                     >
                       Edit
                     </button>
                     <button
                       onClick={() => handleDeleteRoom(room._id)}
-                      className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
+                      className="px-3 py-1 bg-[#d4a574] text-white rounded hover:bg-[#b88f5a]"
                     >
                       Delete
                     </button>
@@ -393,9 +421,9 @@ const ManageRoom: React.FC = () => {
           onClick={() => setModalImageIndex(null)}
           className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50"
         >
-          <div className="relative flex items-center">
+          <div className="relative flex items-center" onClick={(e) => e.stopPropagation()}>
             <button
-              onClick={(e) => { e.stopPropagation(); handlePrevImage(); }}
+              onClick={handlePrevImage}
               className="absolute left-0 text-white text-3xl px-4 hover:text-gray-300"
             >
               <ChevronLeft />
@@ -408,7 +436,7 @@ const ManageRoom: React.FC = () => {
             />
 
             <button
-              onClick={(e) => { e.stopPropagation(); handleNextImage(); }}
+              onClick={handleNextImage}
               className="absolute right-0 text-white text-3xl px-4 hover:text-gray-300"
             >
               <ChevronRight />

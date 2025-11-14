@@ -190,7 +190,7 @@ const ManageRoom: React.FC = () => {
   };
 
   return (
-    <div className="fixed inset-0 bg-white flex flex-col font-sans overflow-hidden pt-[72px]">
+    <div className="fixed inset-0 flex flex-col font-sans overflow-hidden pt-[72px] h-full">
       {/* --- Header --- */}
       <header className="border-b border-gray-200 px-8 py-4 flex justify-between items-center">
         <div>
@@ -201,14 +201,14 @@ const ManageRoom: React.FC = () => {
           onClick={() => setIsPreviewOpen(!isPreviewOpen)}
           className="text-sm font-medium text-gray-600 border px-3 py-1.5 rounded hover:bg-gray-100 transition"
         >
-          {isPreviewOpen ? 'Hide Preview' : 'Show Preview'}
+          {isPreviewOpen ? 'Hide Image' : 'Show Image'}
         </button>
       </header>
 
       {/* --- Main Content --- */}
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 h-full">
         {/* Left Column: Form Section */}
-        <div className={`transition-all duration-300 ${isPreviewOpen ? 'w-1/2' : 'w-full'} overflow-y-auto px-10 py-8`}>
+        <div className={`transition-all duration-300 ${isPreviewOpen ? 'w-1/2' : 'w-full'} px-10 py-8 overflow-y-auto`}>
           <form onSubmit={handleSubmit} className="space-y-5 text-gray-700">
             {/* Title */}
             <div>
@@ -328,9 +328,12 @@ const ManageRoom: React.FC = () => {
               </p>
             )}
           </form>
+        </div>
 
+        {/* Right Column: Existing Rooms + Image Preview Overlay */}
+        <div className="w-1/2 border-l border-gray-200 bg-gray-50 p-6 relative flex flex-col h-full">
           {/* --- Existing Room List --- */}
-          <div className="mt-10">
+          <div className={`flex-1 min-h-0 overflow-y-auto transition-opacity duration-300 ${isPreviewOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
             <h2 className="text-lg font-semibold text-gray-700 mb-4">Existing Rooms</h2>
             {rooms.length > 0 ? (
               <ul className="space-y-3">
@@ -360,39 +363,39 @@ const ManageRoom: React.FC = () => {
               <p className="text-gray-400 italic">No rooms available</p>
             )}
           </div>
-        </div>
 
-        {/* Right Column: Image Preview Panel */}
-        {isPreviewOpen && (
-          <div className="w-1/2 border-l border-gray-200 bg-gray-50 p-6 overflow-y-auto">
-            <h2 className="text-lg font-semibold text-gray-700 mb-4">Image Preview</h2>
+          {/* --- Image Preview Overlay --- */}
+          {isPreviewOpen && (
+            <div className="absolute inset-0 bg-gray-50 z-10 p-6 overflow-y-auto transition-opacity duration-300">
+              <h2 className="text-lg font-semibold text-gray-700 mb-4">Image Preview</h2>
 
-            {previewUrls.length > 0 ? (
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {previewUrls.map((url, idx) => (
-                  <div
-                    key={idx}
-                    className="relative group cursor-pointer"
-                    onClick={() => setModalImageIndex(idx)}
-                  >
-                    <img
-                      src={url}
-                      alt={`Preview ${idx + 1}`}
-                      className="w-full h-48 object-cover rounded-md border border-gray-200 shadow-sm"
-                    />
-                    <div className="absolute inset-0 bg-gray-700 bg-opacity-0 group-hover:bg-opacity-40 transition flex items-center justify-center rounded-md">
-                      <span className="text-white text-sm opacity-0 group-hover:opacity-100 transition">
-                        Preview Image
-                      </span>
+              {previewUrls.length > 0 ? (
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  {previewUrls.map((url, idx) => (
+                    <div
+                      key={idx}
+                      className="relative group cursor-pointer"
+                      onClick={() => setModalImageIndex(idx)}
+                    >
+                      <img
+                        src={url}
+                        alt={`Preview ${idx + 1}`}
+                        className="w-full h-48 object-cover rounded-md border border-gray-200 shadow-sm"
+                      />
+                      <div className="absolute inset-0 bg-gray-700 bg-opacity-0 group-hover:bg-opacity-40 transition flex items-center justify-center rounded-md">
+                        <span className="text-white text-sm opacity-0 group-hover:opacity-100 transition">
+                          Preview Image
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-gray-400 italic">No images selected</div>
-            )}
-          </div>
-        )}
+                  ))}
+                </div>
+              ) : (
+                <div className="text-gray-400 italic">No images selected</div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Modal for Image Preview */}

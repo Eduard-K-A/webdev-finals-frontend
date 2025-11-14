@@ -45,11 +45,11 @@ const AdminNavBar: React.FC = () => {
             <Hotel className="w-4 h-4 inline mr-2" />
             Rooms
           </Link>
-          <Link to="/ManageRoom" className={getLinkClass("/ManageRoom")}>
+          <Link to="/Admin/ManageRoom" className={getLinkClass("/ManageRoom")}>
             <Hotel className="w-4 h-4 inline mr-2" />
             Manage Rooms
           </Link>
-          <Link to="/Users" className={getLinkClass("/Users")}>
+          <Link to="/Admin/Users" className={getLinkClass("/Users")}>
             <Users className="w-4 h-4 inline mr-2" />
             Users
           </Link>

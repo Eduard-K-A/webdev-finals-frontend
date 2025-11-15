@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Hotel, LogIn, LogOut } from 'lucide-react';
+import { Hotel, LogIn, LogOut, LayoutDashboard } from 'lucide-react';
 import { useAuth } from "../../context/AuthContext";
 import AdminNavBar from "./AdminNavBar";
 
@@ -8,7 +8,6 @@ const NavBar: React.FC = () => {
   const location = useLocation();
   const { isLoggedIn, isAdmin, user, logout } = useAuth();
 
-  console.log('user:', user?.firstName, 'isAdmin:', isAdmin, 'isLoggedIn:', isLoggedIn);
   // Show admin navbar if user is logged in as admin
   if (isLoggedIn && isAdmin) {
     return <AdminNavBar />;
@@ -20,8 +19,8 @@ const NavBar: React.FC = () => {
     return `
       text-base font-medium transition-colors duration-200 
       ${isActive
-        ? `text-[#d4a574] border-b-2 border-[#d4a574] font-semibold` // Active: Gold underline
-        : "text-gray-700 hover:text-[#1f1f1f]" // Default/Hover: Dark text
+        ? `text-[#d4a574] border-b-2 border-[#d4a574] font-semibold`
+        : "text-gray-700 hover:text-[#1f1f1f]"
       }`;
   };
 
@@ -30,13 +29,13 @@ const NavBar: React.FC = () => {
   };
 
   return (
-    <div className={`sticky top-0 z-50 w-full bg-white border-b-2 border-[#d4a574] shadow-sm px-8 py-4`}>
+    <div className="sticky top-0 z-50 w-full bg-white border-b-2 border-[#d4a574] shadow-sm px-8 py-4">
       <div className="flex justify-between items-center h-full">
         
         {/* Logo & Brand */}
         <div className="flex items-center gap-2 cursor-pointer ml-20">
-          <Hotel className={`h-8 w-8 text-[#0a1e3d]`} />
-          <Link to="/" className={`text-xl text-[#0a1e3d] font-medium`}>
+          <Hotel className="h-8 w-8 text-[#0a1e3d]" />
+          <Link to="/" className="text-xl text-[#0a1e3d] font-medium">
             LuxeStay
           </Link>
         </div>
@@ -44,18 +43,20 @@ const NavBar: React.FC = () => {
         {/* Navigation Links */}
         <nav className="hidden md:flex items-center gap-6 h-full">
           <Link to="/" className={getLinkClass("/")}>
+            <LayoutDashboard className="w-4 h-4 inline mr-2" />
             Home
           </Link>
           <Link to="/Rooms" className={getLinkClass("/Rooms")}>
+            <Hotel className="w-4 h-4 inline mr-2" />
             Rooms
           </Link>
         </nav>
 
         {/* Auth Buttons */}
-        <div className="space-x-4">
+        <div className="space-x-4 flex items-center">
           {isLoggedIn ? (
             <>
-              <span className="text-gray-700 font-medium">
+              <span className="text-gray-700 font-medium hidden sm:inline">
                 Welcome, {user?.firstName}!
               </span>
               <button 

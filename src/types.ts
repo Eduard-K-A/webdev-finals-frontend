@@ -59,7 +59,7 @@ export interface Room {
 }
 
 //user types
-export interface User {
+export interface UserType {
   _id: string;
   id?: string;
   email: string;
@@ -71,9 +71,9 @@ export interface User {
 }
 
 export interface AuthContextType{
-    user: User | null;
+    user: UserType | null;
   isLoggedIn: boolean;
   isAdmin: boolean;
   logout: () => void;
-  login: (userData: User) => void;
+  login: (userData: UserType) => void;
 }

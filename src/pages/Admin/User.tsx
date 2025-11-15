@@ -1,13 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import type {UserType} from '../../types';
 
-interface UserType {
-  _id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  role: string;
-}
+
 
 type SortOrder = 'asc' | 'desc';
 
@@ -98,8 +93,10 @@ const User: React.FC = () => {
   };
 
   const sortedUsers = [...users].sort((a, b) => {
-    if (a[sortKey] < b[sortKey]) return sortOrder === 'asc' ? -1 : 1;
-    if (a[sortKey] > b[sortKey]) return sortOrder === 'asc' ? 1 : -1;
+    const aVal = a[sortKey] ?? '';
+    const bVal = b[sortKey] ?? '';
+    if (aVal < bVal) return sortOrder === 'asc' ? -1 : 1;
+    if (aVal > bVal) return sortOrder === 'asc' ? 1 : -1;
     return 0;
   });
 

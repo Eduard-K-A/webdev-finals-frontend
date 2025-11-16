@@ -77,3 +77,11 @@ export interface AuthContextType{
   logout: () => void;
   login: (userData: UserType) => void;
 }
+
+export interface Booking {
+  id: string;
+  room: Room;
+  checkIn: string;
+  checkOut: string;
+  location: string;
+}

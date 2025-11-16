@@ -43,10 +43,10 @@ export interface Photo  {
 
 //define the shape of room object
 export interface Room {
-  _id: string;
+  id: string;
   title: string;
   description: string;
-  type: "Single" | "Double" | "Suite";
+  type: "Single" | "Double" | "Suite" | "Family" | "Exclusive";
   pricePerNight: number;
   maxPeople: number;
   amenities: string[];
@@ -54,8 +54,16 @@ export interface Room {
   isAvailable: boolean;
   rating?: number; 
   averageRating: number;
+  reviewCount?: number;
   createdAt: string;
   updatedAt: string;
+  isTopRated?: boolean;
+}
+
+export interface RoomCardProps {
+  room: Room;
+  onViewDetails: () => void;
+  onBookNow?: () => void;
 }
 
 //user types

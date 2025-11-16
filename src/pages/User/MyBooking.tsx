@@ -1,73 +1,63 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
-import { Hotel } from 'lucide-react';
+import { Hotel, Calendar, Clock, MapPin, Loader2 } from 'lucide-react';
 import type { Room as RoomType } from '../../types';
 
-const RoomDetail: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
+interface Booking {
+  id: string;
+  room: RoomType;
+  checkIn: string;
+  checkOut: string;
+  location: string;
+}
 
-  // State for room data, loading, error, and carousel photo index
-  const [room, setRoom] = useState<RoomType | null>(null);
+const MyBookings: React.FC = () => {
+  const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [currentPhoto, setCurrentPhoto] = useState(0);
 
-  // Fetch room data when component mounts or id changes
+  // Fetch all bookings for logged-in user
   useEffect(() => {
-    if (!id) return; // Exit early if no ID
-
-    const fetchRoom = async () => {
+    const fetchBookings = async () => {
       setLoading(true);
       try {
         const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
-        const res = await axios.get(`${apiBaseUrl}/api/rooms/${id}`);
+        const res = await axios.get(`${apiBaseUrl}/api/bookings`); // adjust endpoint if needed
 
-        // Handle API response:
-        // If API wraps room in "room" key, use it; otherwise, use res.data directly
-        const roomData = res.data.room || res.data;
+        // Some APIs may wrap bookings in a key like "bookings"
+        const bookingData = res.data.bookings || res.data;
 
-        // If no valid data returned, treat it as not found
-        if (!roomData || Object.keys(roomData).length === 0) {
-          setRoom(null);
+        if (!bookingData || bookingData.length === 0) {
+          setBookings([]);
           setError('No Bookings found.');
         } else {
-          setRoom(roomData);
+          setBookings(bookingData);
         }
       } catch (err: any) {
-        console.error('Fetch error:', err);
-        setRoom(null);
+        console.error('Error fetching bookings:', err);
+        setBookings([]);
         setError(err.response?.data?.message || err.message || 'No Bookings found.');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchRoom();
-  }, [id]);
-
-  // Carousel navigation logic
-  const handleNextPhoto = () => {
-    if (!room?.photos || room.photos.length === 0) return;
-    setCurrentPhoto((prev) => (prev + 1) % room.photos.length); // Wrap around
-  };
-
-  const handlePrevPhoto = () => {
-    if (!room?.photos || room.photos.length === 0) return;
-    setCurrentPhoto((prev) => (prev - 1 + room.photos.length) % room.photos.length); // Wrap around backwards
-  };
+    fetchBookings();
+  }, []);
 
   // Loading state
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen animate-pulse text-gray-500 text-xl">
-        Loading...
+        <Loader2 className="animate-spin w-10 h-10 mr-2" />
+        Loading your bookings...
       </div>
     );
   }
 
-  // No room or error state
-  if (!room || error) {
+  // No bookings / error state
+  if (bookings.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-screen text-center text-[#362f22]/70">
         <Hotel className="w-12 h-12 mx-auto mb-4 opacity-70" />
@@ -76,89 +66,53 @@ const RoomDetail: React.FC = () => {
     );
   }
 
-  // Main Room Detail UI
+  // Render list of bookings
   return (
-    <div className="max-w-6xl mx-auto p-6 md:p-10 space-y-10">
-      {/* Photo Carousel */}
-      {room.photos && room.photos.length > 0 && (
-        <div className="relative rounded-2xl overflow-hidden shadow-2xl hover:shadow-3xl transition-shadow duration-500">
-          <img
-            src={room.photos[currentPhoto].url}
-            alt={room.title}
-            className="w-full h-96 md:h-[500px] object-cover transform hover:scale-105 transition duration-500"
-          />
-          {room.photos.length > 1 && (
-            <>
-              {/* Previous photo button */}
-              <button
-                onClick={handlePrevPhoto}
-                className="absolute top-1/2 left-4 transform -translate-y-1/2 bg-black/30 text-white p-2 rounded-full hover:bg-black/50 transition"
-              >
-                &#10094;
-              </button>
-              {/* Next photo button */}
-              <button
-                onClick={handleNextPhoto}
-                className="absolute top-1/2 right-4 transform -translate-y-1/2 bg-black/30 text-white p-2 rounded-full hover:bg-black/50 transition"
-              >
-                &#10095;
-              </button>
-            </>
-          )}
-        </div>
-      )}
+    <div className="min-h-screen bg-white flex flex-col items-center p-6 pt-28">
+      <h1 className="text-3xl font-bold text-[#362f22] mb-6">My Bookings</h1>
 
-      {/* Room Details */}
-      <div className="bg-white rounded-2xl shadow-lg p-8 md:p-12 space-y-6 hover:shadow-2xl transition-shadow duration-500">
-        {/* Room Title */}
-        <h1 className="text-4xl md:text-5xl font-extrabold text-[var(--color-brand-navy)] tracking-tight">
-          {room.title}
-        </h1>
+      <div className="w-full max-w-3xl space-y-6">
+        {bookings.map((b) => (
+          <div
+            key={b.id}
+            className="shadow-lg rounded-2xl border border-[#e1d7c6] bg-[#faf7f2] hover:shadow-xl transition-all duration-300 p-6"
+          >
+            <div className="flex flex-col md:flex-row md:items-center justify-between">
+              <div>
+                {/* Room Title */}
+                <h2 className="text-2xl font-semibold text-[#362f22] flex items-center gap-2">
+                  <Hotel className="w-6 h-6" /> {b.room.title}
+                </h2>
 
-        {/* Room Description */}
-        <p className="text-gray-700 text-lg md:text-xl mt-4">{room.description}</p>
+                {/* Booking Info */}
+                <div className="mt-3 space-y-2 text-[#362f22]/80">
+                  <p className="flex items-center gap-2">
+                    <Calendar className="w-5 h-5" /> Check-in: <span className="font-medium">{b.checkIn}</span>
+                  </p>
+                  <p className="flex items-center gap-2">
+                    <Clock className="w-5 h-5" /> Check-out: <span className="font-medium">{b.checkOut}</span>
+                  </p>
+                  <p className="flex items-center gap-2">
+                    <MapPin className="w-5 h-5" /> Location: <span className="font-medium">{b.location}</span>
+                  </p>
+                </div>
+              </div>
 
-        {/* Amenities */}
-        {room.amenities && room.amenities.length > 0 && (
-          <div className="mt-6">
-            <h2 className="text-2xl font-semibold mb-2">Amenities</h2>
-            <ul className="flex flex-wrap gap-3">
-              {room.amenities.map((amenity, idx) => (
-                <li
-                  key={idx}
-                  className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm md:text-base"
+              {/* View Details button */}
+              <div className="mt-6 md:mt-0">
+                <Link
+                  to={`/rooms/${b.room.id}`} // link to RoomDetail page
+                  className="bg-[#d4a574] hover:bg-[#c9965c] text-white px-6 py-2 rounded-xl shadow-md inline-block"
                 >
-                  {amenity}
-                </li>
-              ))}
-            </ul>
+                  View Details
+                </Link>
+              </div>
+            </div>
           </div>
-        )}
-
-        {/* Room Info */}
-        <div className="mt-6 flex flex-wrap gap-6 text-gray-800 text-lg md:text-xl">
-          <p>
-            <span className="font-semibold">Type:</span> {room.type}
-          </p>
-          <p>
-            <span className="font-semibold">Max Guests:</span> {room.maxPeople}
-          </p>
-          <p>
-            <span className="font-semibold">Price:</span>{' '}
-            <span className="text-2xl md:text-3xl font-bold text-blue-600">
-              ${room.pricePerNight}
-            </span>{' '}
-            <span className="text-gray-500 ml-1">/ night</span>
-          </p>
-        </div>
-
-        {/* Book button */}
-        <button className="mt-6 w-full md:w-auto bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-semibold py-4 px-8 rounded-xl text-lg md:text-xl shadow-lg hover:shadow-2xl transition-all duration-300">
-          Book Now
-        </button>
+        ))}
       </div>
     </div>
   );
 };
 
-export default RoomDetail;
+export default MyBookings;

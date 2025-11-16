@@ -2,29 +2,8 @@ import React from "react";
 import { Link } from "react-router-dom";
 // Assuming 'lucide-react' for modern, clean icons
 import { Users, Star, Wifi, Tv, Coffee } from "lucide-react";
+import type { RoomCardProps} from "../../types";
 
-// Define the expected Room type for component props
-// NOTE: You might need to adjust this to match your actual types.
-interface Room {
-  _id: string;
-  title: string;
-  type: string;
-  description: string;
-  pricePerNight: number;
-  maxPeople: number;
-  isAvailable: boolean;
-  rating?: number;
-  reviewCount?: number;
-  photos: { url: string }[];
-  amenities: string[]; // e.g., ["Free Wifi", "TV", "Coffee Maker"]
-  isTopRated?: boolean; // Based on the badge in the design
-}
-
-interface RoomCardProps {
-  room: Room;
-  onViewDetails: () => void;
-  onBookNow?: () => void;
-}
 
 // Helper to map amenity strings to Lucide icons (for display only)
 const AmenityIcon = ({ name }: { name: string }) => {
@@ -219,7 +198,7 @@ const RoomCard: React.FC<RoomCardProps> = ({
             {/* Book Now Button: Solid Gold Background */}
             {room.isAvailable ? (
               <Link
-                to={`/Book/${room._id}`}
+                to={`/Book/${room.id}`}
                 onClick={(e) => {
                   e.stopPropagation();
                   onBookNow?.();

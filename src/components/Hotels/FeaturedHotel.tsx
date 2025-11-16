@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Star } from 'lucide-react'; 
-import type { FeaturedHotel } from "../../types";
+import type { Room } from "../../types";
 
 const MockImage: React.FC<{ src: string, alt: string, className: string }> = ({ alt, className }) => {
 
@@ -13,7 +13,7 @@ const MockImage: React.FC<{ src: string, alt: string, className: string }> = ({ 
 interface FeaturedHotelsProps {}
 
 const FeaturedHotels: React.FC<FeaturedHotelsProps> = () => {
-    const [hotelsList, setHotelsList] = useState<FeaturedHotel[]>([]);
+    const [hotelsList, setHotelsList] = useState<Room[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -97,19 +97,19 @@ const FeaturedHotels: React.FC<FeaturedHotelsProps> = () => {
                             >
                                 <div className="relative h-64 overflow-hidden">
                                     <MockImage
-                                        src={hotel.image || ''}
-                                        alt={hotel.name}
+                                        src={hotel.thumbnail || ''}
+                                        alt={hotel.title}
                                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                                     />
                                     
                                     <div className="absolute top-4 right-4 bg-[#d4a574] text-[#0a1e3d] text-sm px-3 py-1 rounded-full font-semibold">
-                                        ${hotel.price}/night
+                                        ${hotel.pricePerNight}/night
                                     </div>
                                 </div>
                                 
                                 <div className="p-6">
                                     <h3 className="text-xl text-[#0a1e3d] mb-2 font-semibold">
-                                        {hotel.name}
+                                        {hotel.title}
                                     </h3>
 
                                     <div className="flex items-center gap-2 mb-3 text-sm">

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom'; // Added to use state for Back button
+import { Link } from 'react-router-dom';
 import { Mail, Phone, MapPin } from 'lucide-react';
 
 const Footer: React.FC = () => {
@@ -8,18 +8,15 @@ const Footer: React.FC = () => {
         { name: 'Home', href: '/' },
         { name: 'Rooms & Suites', href: '/rooms' },
         { name: 'About Us', href: '/about' },
-        { name: 'Contact', href: '/contact' },
     ];
 
     const supportLinks = [
         { name: 'FAQs', href: '/faqs' },
-        { name: 'Terms & Conditions', href: '/terms' },
-        { name: 'Privacy Policy', href: '/policy' },
+        { name: 'Terms & Conditions and Policy', href: '/terms' },
     ];
 
     const LinkItem: React.FC<{ name: string; href: string }> = ({ name, href }) => {
-        // Updated to use Link for policies to allow Back button from homepage/footer
-        if (name === 'Terms & Conditions' || name === 'Privacy Policy') {
+        if (name === 'Terms & Conditions and Policy') {
             return (
                 <Link
                     to={href}
@@ -30,6 +27,7 @@ const Footer: React.FC = () => {
                 </Link>
             );
         }
+
         return (
             <a
                 href={href}

@@ -24,16 +24,6 @@ export interface SearchContextType {
     resetSearch: () => void;
 }
 
-//
-export interface FeaturedHotel {
-  image: string;
-  id: string;
-  name: string;
-  city: string;
-  price: number;
-  imagePlaceholder: string; // Using a descriptive placeholder
-}
-
 //define the shape of photo object
 export interface Photo  {
   url: string;
@@ -50,6 +40,7 @@ export interface Room {
   pricePerNight: number;
   maxPeople: number;
   amenities: string[];
+  thumbnail: string;
   photos: Photo[];
   isAvailable: boolean;
   rating?: number; 
@@ -58,6 +49,7 @@ export interface Room {
   createdAt: string;
   updatedAt: string;
   isTopRated?: boolean;
+  city?: string;
 }
 
 export interface RoomCardProps {

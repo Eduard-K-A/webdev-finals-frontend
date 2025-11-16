@@ -1,10 +1,10 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import type {User, AuthContextType } from '../types';
+import type {UserType, AuthContextType } from '../types';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthContextProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<UserType | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   // Check for stored user on mount
@@ -22,7 +22,7 @@ export const AuthContextProvider: React.FC<{ children: React.ReactNode }> = ({ c
     }
   }, []);
 
-  const login = (userData: User) => {
+  const login = (userData: UserType) => {
     setUser(userData);
     setIsLoggedIn(true);
     localStorage.setItem('user', JSON.stringify(userData));

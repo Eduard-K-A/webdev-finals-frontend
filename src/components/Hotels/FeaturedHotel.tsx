@@ -1,8 +1,7 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Star } from 'lucide-react'; 
-import hotels from "../../data/hotels.json"; 
-import type { FeaturedHotel } from "../../types"; 
+import type { FeaturedHotel } from "../../types";
 
 const MockImage: React.FC<{ src: string, alt: string, className: string }> = ({ alt, className }) => {
 
@@ -14,12 +13,53 @@ const MockImage: React.FC<{ src: string, alt: string, className: string }> = ({ 
 interface FeaturedHotelsProps {}
 
 const FeaturedHotels: React.FC<FeaturedHotelsProps> = () => {
-    const hotelsList = (hotels as FeaturedHotel[]).slice(0, 3);
+    const [hotelsList, setHotelsList] = useState<FeaturedHotel[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        const controller = new AbortController();
+        const fetchHotels = async () => {
+            setLoading(true);
+            setError(null);
+            try {
+                const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+                const res = await fetch(`${API_BASE_URL}/api/rooms?available=true`, { signal: controller.signal });
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const data = await res.json();
+
+                const list = (data.rooms || []).slice(0, 3).map((room: any) => ({
+                    image: room.photos?.[0]?.url || '',
+                    id: room.id || room._id,
+                    name: room.title || 'Room',
+                    city: room.city || '',
+                    price: room.pricePerNight || 0,
+                    imagePlaceholder: ''
+                }));
+
+                setHotelsList(list);
+            } catch (err: any) {
+                if (err.name === 'AbortError') return;
+                console.error('Failed to load featured rooms', err);
+                setError(err.message || 'Failed to fetch featured rooms');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchHotels();
+        return () => controller.abort();
+    }, []);
     
-    const getMockRating = (id: number) => ({
-        rating: 4.5 + (id % 4) / 10,
-        reviewCount: 100 + (id * 50),
-    });
+    const getMockRating = (id: string | number) => {
+        let seed = 0;
+        if (typeof id === 'number') seed = id;
+        else seed = [...String(id)].reduce((sum, ch) => sum + ch.charCodeAt(0), 0);
+        return {
+            rating: 4.2 + (seed % 30) / 100,
+            reviewCount: 100 + (seed % 200),
+        };
+    };
 
     const handleViewAllRooms = () => {
         console.log("Navigating to all rooms page");
@@ -42,7 +82,11 @@ const FeaturedHotels: React.FC<FeaturedHotelsProps> = () => {
 
                 {/* Cards Grid */}
                 <div className="grid md:grid-cols-3 gap-8">
-                    {hotelsList.map((hotel) => {
+                    {loading ? (
+                        <div className="col-span-3 text-center text-gray-500">Loading...</div>
+                    ) : error ? (
+                        <div className="col-span-3 text-center text-red-500">{error}</div>
+                    ) : hotelsList.map((hotel) => {
                         const { rating, reviewCount } = getMockRating(hotel.id);
                         
                         return (
@@ -80,7 +124,7 @@ const FeaturedHotels: React.FC<FeaturedHotelsProps> = () => {
                                     </div>
                                     
                                     <p className="text-gray-600 mb-6 line-clamp-2 text-base">
-                                        {hotel.city}: Experience luxury in this elegant room, featuring modern amenities and stunning views, perfect for a restful escape.
+                                        {hotel.city || 'Featured room'}: Experience luxury in this elegant room, featuring modern amenities and stunning views, perfect for a restful escape.
                                     </p>
                                     
                                     <div

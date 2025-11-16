@@ -2,15 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { Hotel, Calendar, Clock, MapPin, Loader2 } from 'lucide-react';
-import type { Room as RoomType } from '../../types';
+import type {  Booking } from '../../types';
 
-interface Booking {
-  id: string;
-  room: RoomType;
-  checkIn: string;
-  checkOut: string;
-  location: string;
-}
 
 const MyBookings: React.FC = () => {
   const [bookings, setBookings] = useState<Booking[]>([]);

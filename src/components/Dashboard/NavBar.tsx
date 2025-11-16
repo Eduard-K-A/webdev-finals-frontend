@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Hotel, LogIn, LogOut, LayoutDashboard } from 'lucide-react';
+import { Hotel, LogIn, LogOut, LayoutDashboard, CalendarCheck } from 'lucide-react';
 import { useAuth } from "../../context/AuthContext";
 import AdminNavBar from "./AdminNavBar";
 
@@ -50,6 +50,14 @@ const NavBar: React.FC = () => {
             <Hotel className="w-4 h-4 inline mr-2" />
             Rooms
           </Link>
+
+          {/* My Bookings link only for logged-in users */}
+          {isLoggedIn && (
+            <Link to="/MyBookings" className={getLinkClass("/MyBookings")}>
+              <CalendarCheck className="w-4 h-4 inline mr-2" />
+              My Bookings
+            </Link>
+          )}
         </nav>
 
         {/* Auth Buttons */}

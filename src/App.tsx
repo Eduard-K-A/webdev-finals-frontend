@@ -12,7 +12,8 @@ import RoomDetail from "./pages/Room/RoomDetail";
 import ManageRoom from "./pages/Admin/ManageRoom";
 import RoomLayout from "./pages/Room/RoomLayout";
 import Policies from "./pages/PoliciesAndSupport/Policies";
-import FAQ from "./pages/PoliciesAndSupport/FAQ"; // <- added FAQ import
+import FAQ from "./pages/PoliciesAndSupport/FAQ";
+import AboutUs from "./pages/AboutUs/AboutUs";
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
             <Route path="/Hotels/:id" element={<RoomDetail />} />
             <Route path="/terms" element={<Policies />} />
             <Route path="/faqs" element={<FAQ />} />
+            <Route path="/about" element={<AboutUs />} />
             <Route path="/Admin/ManageRoom" element={<ManageRoom />} />
             <Route path="/Admin/Users" element={<User />} />
             <Route path="*" element={<div>404 Not Found</div>} />

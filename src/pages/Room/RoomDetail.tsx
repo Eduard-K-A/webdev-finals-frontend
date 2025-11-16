@@ -11,23 +11,31 @@ const RoomDetail: React.FC = () => {
   const [currentPhoto, setCurrentPhoto] = useState(0); // Track current photo in carousel
 
   useEffect(() => {
-    if (!id) return;
+  if (!id) return;
 
-    const fetchRoom = async () => {
-      setLoading(true);
-      try {
-        const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
-        const res = await axios.get(`${apiBaseUrl}/api/rooms/${id}`);
-        setRoom(res.data); // Set room data from API response
-      } catch (err: any) {
-        setError(err.response?.data?.message || err.message || 'Something went wrong');
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchRoom = async () => {
+    setLoading(true);
+    try {
+      const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+      console.log('Fetching room with ID:', id);
+      console.log('API URL:', `${apiBaseUrl}/api/rooms/${id}`);
+      
+      const res = await axios.get(`${apiBaseUrl}/api/rooms/${id}`);
+      console.log('API Response:', res.data);
+      
+      // API returns { room: {...} }, extract it
+      const roomData = res.data.room || res.data;
+      setRoom(roomData);
+    } catch (err: any) {
+      console.error('Fetch error:', err);
+      setError(err.response?.data?.message || err.message || 'Something went wrong');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    fetchRoom();
-  }, [id]);
+  fetchRoom();
+}, [id]);
 
   // Carousel navigation functions
   const handleNextPhoto = () => {

@@ -45,7 +45,7 @@ function RoomLayout() {
       
       // Transform backend data to match frontend Room type
       const transformedRooms: Room[] = (data.rooms || data || []).map((room: any) => ({
-        _id: room._id,
+        id: room.id,
         title: room.title,
         description: room.description,
         type: room.type,
@@ -255,7 +255,7 @@ function RoomLayout() {
             
             {filteredRooms.map(room => (
               <RoomCard
-                key={room._id}
+                key={room.id}
                 room={room}
                 onViewDetails={() => console.log('View details for', room.title)} 
               />

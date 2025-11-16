@@ -126,7 +126,7 @@ const ManageRoom: React.FC = () => {
       // Merge existing photos if updating
       let photos: Photo[] = uploadedImages;
       if (editingRoomId) {
-        const existingRoom = rooms.find(r => r._id === editingRoomId);
+        const existingRoom = rooms.find(r => r.id === editingRoomId);
         if (existingRoom) {
           photos = [...existingRoom.photos, ...uploadedImages];
         }
@@ -166,7 +166,7 @@ const ManageRoom: React.FC = () => {
 
   // --- Handle Edit Room ---
   const handleEditRoom = (room: Room) => {
-    setEditingRoomId(room._id);
+    setEditingRoomId(room.id);
     setTitle(room.title);
     setDescription(room.description);
     setType(room.type);
@@ -182,7 +182,7 @@ const ManageRoom: React.FC = () => {
     if (!confirm("Are you sure you want to delete this room?")) return;
     try {
       await axios.delete(`${apiBaseUrl}/api/rooms/${roomId}`);
-      setRooms(prev => prev.filter(r => r._id !== roomId));
+      setRooms(prev => prev.filter(r => r.id !== roomId));
       setMessage('Room deleted successfully');
       if (editingRoomId === roomId) resetForm();
     } catch (err) {
@@ -388,7 +388,7 @@ const ManageRoom: React.FC = () => {
           {rooms.length > 0 ? (
             <ul className="space-y-3">
               {rooms.map(room => (
-                <li key={room._id} className="border p-3 rounded-md flex justify-between items-center">
+                <li key={room.id} className="border p-3 rounded-md flex justify-between items-center">
                   <div>
                     <span className="font-medium">{room.title}</span> - {room.type} - ₱{room.pricePerNight}/night
                   </div>
@@ -400,7 +400,7 @@ const ManageRoom: React.FC = () => {
                       Edit
                     </button>
                     <button
-                      onClick={() => handleDeleteRoom(room._id)}
+                      onClick={() => handleDeleteRoom(room.id)}
                       className="px-3 py-1 bg-[#d4a574] text-white rounded hover:bg-[#b88f5a]"
                     >
                       Delete

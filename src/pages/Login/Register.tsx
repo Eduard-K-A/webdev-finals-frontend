@@ -266,15 +266,7 @@ const Register: React.FC = () => {
                       state={{ fromRegister: true }}
                       className="text-[#d4a574] hover:underline"
                     >
-                      Terms and Conditions
-                    </Link>{" "}
-                    and{" "}
-                    <Link
-                      to="/policy"
-                      state={{ fromRegister: true }}
-                      className="text-[#d4a574] hover:underline"
-                    >
-                      Privacy Policy
+                      Terms & Conditions and Policy
                     </Link>
                     .
                   </label>

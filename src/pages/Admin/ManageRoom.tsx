@@ -54,7 +54,9 @@ const ManageRoom: React.FC = () => {
   const fetchRooms = async () => {
     try {
       const res = await axios.get(`${apiBaseUrl}/api/rooms`);
-      setRooms(res.data.rooms || []);
+      // Normalize rooms so each has an `id` (fallback to MongoDB `_id`)
+      const fetched = (res.data.rooms || []).map((r: any) => ({ ...r, id: r.id || r._id }));
+      setRooms(fetched);
     } catch (err) {
       console.error('Failed to fetch rooms', err);
     }
@@ -126,7 +128,7 @@ const ManageRoom: React.FC = () => {
       // Merge existing photos if updating
       let photos: Photo[] = uploadedImages;
       if (editingRoomId) {
-        const existingRoom = rooms.find(r => r.id === editingRoomId);
+        const existingRoom = rooms.find(r => (r.id === editingRoomId || r._id === editingRoomId));
         if (existingRoom) {
           photos = [...existingRoom.photos, ...uploadedImages];
         }
@@ -166,7 +168,8 @@ const ManageRoom: React.FC = () => {
 
   // --- Handle Edit Room ---
   const handleEditRoom = (room: Room) => {
-    setEditingRoomId(room.id);
+    // Use `id` when available, otherwise fallback to MongoDB `_id`
+    setEditingRoomId((room as any).id || (room as any)._id || null);
     setTitle(room.title);
     setDescription(room.description);
     setType(room.type);
@@ -182,7 +185,7 @@ const ManageRoom: React.FC = () => {
     if (!confirm("Are you sure you want to delete this room?")) return;
     try {
       await axios.delete(`${apiBaseUrl}/api/rooms/${roomId}`);
-      setRooms(prev => prev.filter(r => r.id !== roomId));
+      setRooms(prev => prev.filter(r => (r.id !== roomId && r._id !== roomId)));
       setMessage('Room deleted successfully');
       if (editingRoomId === roomId) resetForm();
     } catch (err) {

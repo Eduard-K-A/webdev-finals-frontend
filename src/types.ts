@@ -34,6 +34,7 @@ export interface Photo  {
 //define the shape of room object
 export interface Room {
   id: string;
+  _id?: string;
   title: string;
   description: string;
   type: "Single" | "Double" | "Suite" | "Family" | "Exclusive";

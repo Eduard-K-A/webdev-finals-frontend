@@ -184,7 +184,9 @@ const ManageRoom: React.FC = () => {
   const handleDeleteRoom = async (roomId: string) => {
     if (!confirm("Are you sure you want to delete this room?")) return;
     try {
-      await axios.delete(`${apiBaseUrl}/api/rooms/${roomId}`);
+      const room = rooms.find(r => (r.id === roomId || r._id === roomId));
+      if(!room) return ;
+      await axios.delete(`${apiBaseUrl}/api/rooms/${room._id}`);
       setRooms(prev => prev.filter(r => (r.id !== roomId && r._id !== roomId)));
       setMessage('Room deleted successfully');
       if (editingRoomId === roomId) resetForm();
@@ -403,7 +405,7 @@ const ManageRoom: React.FC = () => {
                       Edit
                     </button>
                     <button
-                      onClick={() => handleDeleteRoom(room.id)}
+                      onClick={() => handleDeleteRoom(room.id )}
                       className="px-3 py-1 bg-[#d4a574] text-white rounded hover:bg-[#b88f5a]"
                     >
                       Delete

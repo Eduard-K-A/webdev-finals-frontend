@@ -37,7 +37,7 @@ const RoomDetail: React.FC = () => {
   fetchRoom();
 }, [id]);
 
-  // Carousel navigation functions
+  // Carousel navigation function
   const handleNextPhoto = () => {
     if (!room || !room.photos) return;
     setCurrentPhoto((prev) => (prev + 1) % room.photos.length); // Wrap around

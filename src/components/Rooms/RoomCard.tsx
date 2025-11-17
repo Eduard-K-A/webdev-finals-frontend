@@ -13,7 +13,7 @@ const AmenityIcon = ({ name }: { name: string }) => {
     "coffee maker": Coffee,
     // Add more mappings as needed
   };
-  const Icon = iconMap[name.toLowerCase()] || Wifi; // Default to Wifi
+  const Icon = iconMap[name.toLowerCase()] || Wifi;
   return <Icon className="w-4 h-4 text-gray-500" />;
 };
 

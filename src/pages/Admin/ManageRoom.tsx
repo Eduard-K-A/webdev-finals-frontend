@@ -34,6 +34,7 @@ const ManageRoom: React.FC = () => {
   const [images, setImages] = useState<File[]>([]);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const [message, setMessage] = useState('');
+  const [selectedThumbnailUrl, setSelectedThumbnailUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [modalImageIndex, setModalImageIndex] = useState<number | null>(null);
 
@@ -134,6 +135,17 @@ const ManageRoom: React.FC = () => {
         }
       }
 
+      // If there's a selected thumbnail url, keep it. If not, fallback to existing room's thumbnail
+      let thumbnailPic = null;
+      if (selectedThumbnailUrl) {
+        thumbnailPic = photos.find(p => p.url === selectedThumbnailUrl) || null;
+      } else if (editingRoomId) {
+        const existingRoom = rooms.find(r => (r.id === editingRoomId || r._id === editingRoomId));
+        if (existingRoom && (existingRoom as any).thumbnailPic) {
+          thumbnailPic = (existingRoom as any).thumbnailPic;
+        }
+      }
+
       const roomPayload = {
         title,
         description,
@@ -142,6 +154,7 @@ const ManageRoom: React.FC = () => {
         maxPeople: Number(maxPeople),
         amenities: amenities ? amenities.split(',').map(a => a.trim()) : [],
         photos,
+        thumbnailPic,
       };
 
       if (editingRoomId) {
@@ -337,13 +350,41 @@ const ManageRoom: React.FC = () => {
                         e.stopPropagation();
                         setPreviewUrls(prev => prev.filter((_, i) => i !== idx));
                         setImages(prev => prev.filter((_, i) => i !== idx));
+                        if (selectedThumbnailUrl === url) setSelectedThumbnailUrl(null);
                       }}
                       className="absolute top-1 right-1 bg-[#d4a574] text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-[#b88f5a] transition"
                     >
                       ×
                     </button>
+
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedThumbnailUrl(url);
+                      }}
+                      className={`absolute bottom-2 left-2 px-2 py-1 rounded text-xs font-semibold transition ${
+                        selectedThumbnailUrl === url
+                          ? 'bg-[#d4a574] text-white'
+                          : 'bg-gray-300 text-gray-700 hover:bg-gray-400'
+                      }`}
+                    >
+                      {selectedThumbnailUrl === url ? '✓ Thumbnail' : 'Set as Thumbnail'}
+                    </button>
                   </div>
                 ))}
+              </div>
+            )}
+
+            {/* --- Selected Thumbnail Preview --- */}
+            {selectedThumbnailUrl && (
+              <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-md">
+                <p className="text-sm font-medium text-green-800 mb-2">Selected Thumbnail:</p>
+                <img
+                  src={selectedThumbnailUrl}
+                  alt="Selected Thumbnail"
+                  className="w-24 h-24 object-cover rounded-md border border-green-300"
+                />
               </div>
             )}
 

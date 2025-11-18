@@ -78,6 +78,11 @@ const SignIn: React.FC = () => {
       
       // Use AuthContext to save user
       login(res.data.user);
+      // Save token for authenticated requests
+      if (res.data.token) {
+        localStorage.setItem('token', res.data.token);
+        axios.defaults.headers.common['Authorization'] = `Bearer ${res.data.token}`;
+      }
       
       // Redirect after 1 second
       setTimeout(() => {

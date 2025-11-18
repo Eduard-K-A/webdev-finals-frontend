@@ -5,6 +5,7 @@ import type { Room } from '../../types';
 import FilterSidebar from '../../components/Rooms/FilterSidebar'; 
 import RoomCard from '../../components/Rooms/RoomCard'; 
 import Footer from '../../components/Dashboard/Footer';
+import { fetchWithCache } from '../../utils/cache';
 
 // API Configuration
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
@@ -35,30 +36,36 @@ function RoomLayout() {
       setLoading(true);
       setError(null);
       
-      const response = await fetch(`${API_BASE_URL}/api/rooms`);
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
-      const data = await response.json();
-      
-      // Transform backend data to match frontend Room type
-      const transformedRooms: Room[] = (data.rooms || data || []).map((room: any) => ({
-        id: room.id,
-        title: room.title,
-        description: room.description,
-        type: room.type,
-        pricePerNight: room.pricePerNight,
-        maxPeople: room.maxPeople,
-        amenities: room.amenities || [],
-        photos: room.photos || [],
-        isAvailable: room.isAvailable !== undefined ? room.isAvailable : true,
-        rating: room.averageRating || 0, // Map averageRating to rating
-        averageRating: room.averageRating || 0,
-        createdAt: room.createdAt,
-        updatedAt: room.updatedAt
-      }));
+      const transformedRooms = await fetchWithCache(
+        'all_rooms',
+        async () => {
+          const response = await fetch(`${API_BASE_URL}/api/rooms`);
+          
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          
+          const data = await response.json();
+          
+          // Transform backend data to match frontend Room type
+          return (data.rooms || data || []).map((room: any) => ({
+            id: room.id,
+            title: room.title,
+            description: room.description,
+            type: room.type,
+            pricePerNight: room.pricePerNight,
+            maxPeople: room.maxPeople,
+            amenities: room.amenities || [],
+            photos: room.photos || [],
+            isAvailable: room.isAvailable !== undefined ? room.isAvailable : true,
+            rating: room.averageRating || 0, // Map averageRating to rating
+            averageRating: room.averageRating || 0,
+            createdAt: room.createdAt,
+            updatedAt: room.updatedAt
+          }));
+        },
+        5 * 60 * 1000 // 5 minute TTL for rooms
+      );
       
       setRooms(transformedRooms);
       

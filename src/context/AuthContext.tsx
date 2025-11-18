@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import type {UserType, AuthContextType } from '../types';
 import axios from 'axios';
+import { clearAllCache } from '../utils/cache';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -45,6 +46,7 @@ export const AuthContextProvider: React.FC<{ children: React.ReactNode }> = ({ c
     setIsLoggedIn(false);
     localStorage.removeItem('user');
     localStorage.removeItem('token');
+    clearAllCache(); // Clear all cached data on logout
     try {
       // eslint-disable-next-line @typescript-eslint/no-var-requires
       delete axios.defaults.headers.common['Authorization'];

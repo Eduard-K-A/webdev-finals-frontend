@@ -4,6 +4,7 @@ import type { Room, Photo } from '../../types';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { fetchWithCache, clearCacheKey } from '../../utils/cache';
 
 /**
  * ManageRoom
@@ -54,9 +55,15 @@ const ManageRoom: React.FC = () => {
 
   const fetchRooms = async () => {
     try {
-      const res = await axios.get(`${apiBaseUrl}/api/rooms`);
-      // Normalize rooms so each has an `id` (fallback to MongoDB `_id`)
-      const fetched = (res.data.rooms || []).map((r: any) => ({ ...r, id: r.id || r._id }));
+      const fetched = await fetchWithCache(
+        'admin_rooms',
+        async () => {
+          const res = await axios.get(`${apiBaseUrl}/api/rooms`);
+          // Normalize rooms so each has an `id` (fallback to MongoDB `_id`)
+          return (res.data.rooms || []).map((r: any) => ({ ...r, id: r.id || r._id }));
+        },
+        3 * 60 * 1000 // 3 minute TTL for admin rooms
+      );
       setRooms(fetched);
     } catch (err) {
       console.error('Failed to fetch rooms', err);
@@ -169,6 +176,11 @@ const ManageRoom: React.FC = () => {
         setMessage('Room created successfully');
       }
 
+      // Clear room caches after create/update
+      clearCacheKey('all_rooms');
+      clearCacheKey('admin_rooms');
+      clearCacheKey('featured_hotels');
+
       fetchRooms();
       resetForm();
     } catch (err: any) {
@@ -202,6 +214,12 @@ const ManageRoom: React.FC = () => {
       await axios.delete(`${apiBaseUrl}/api/rooms/${room._id}`);
       setRooms(prev => prev.filter(r => (r.id !== roomId && r._id !== roomId)));
       setMessage('Room deleted successfully');
+      
+      // Clear room caches after delete
+      clearCacheKey('all_rooms');
+      clearCacheKey('admin_rooms');
+      clearCacheKey('featured_hotels');
+      
       if (editingRoomId === roomId) resetForm();
     } catch (err) {
       console.error('Failed to delete room', err);

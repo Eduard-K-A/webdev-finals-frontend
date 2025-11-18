@@ -2,13 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Star } from 'lucide-react'; 
 import type { Room } from "../../types";
+import { fetchWithCache } from "../../utils/cache";
 
-const MockImage: React.FC<{ src?: string, alt?: string, className?: string }> = ({ src, alt, className }) => {
-    if (src) {
-        return <img src={src} alt={alt} className={`h-full w-full object-cover ${className}`} />;
-    }
-    return <div className={`h-full w-full bg-gray-300 flex items-center justify-center text-sm text-gray-700 ${className}`}>{alt || 'Hotel Image Placeholder'}</div>;
-};
 
 interface FeaturedHotelsProps {}
 
@@ -24,18 +19,25 @@ const FeaturedHotels: React.FC<FeaturedHotelsProps> = () => {
             setError(null);
             try {
                 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
-                const res = await fetch(`${API_BASE_URL}/api/rooms?available=true`, { signal: controller.signal });
-                if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                const data = await res.json();
+                
+                const list = await fetchWithCache(
+                    'featured_hotels',
+                    async () => {
+                        const res = await fetch(`${API_BASE_URL}/api/rooms?available=true`, { signal: controller.signal });
+                        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                        const data = await res.json();
 
-                const list = (data.rooms || []).slice(0, 3).map((room: any) => ({
-                    thumbnailPic: room.thumbnailPic || room.photos?.[0] || null,
-                    id: room.id || room._id,
-                    name: room.title || 'Room',
-                    city: room.city || '',
-                    price: room.pricePerNight || 0,
-                    imagePlaceholder: ''
-                }));
+                        return (data.rooms || []).slice(0, 3).map((room: any) => ({
+                            thumbnailPic: room.thumbnailPic || room.photos?.[0] || null,
+                            id: room.id || room._id,
+                            title: room.title || 'Room',
+                            city: room.city || '',
+                            pricePerNight: room.pricePerNight || 0,
+                            imagePlaceholder: ''
+                        }));
+                    },
+                    5 * 60 * 1000 // 5 minute TTL for featured hotels
+                );
 
                 setHotelsList(list);
             } catch (err: any) {
@@ -96,7 +98,7 @@ const FeaturedHotels: React.FC<FeaturedHotelsProps> = () => {
                                 className="bg-white overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-shadow duration-300 cursor-pointer group block"
                             >
                                 <div className="relative h-64 overflow-hidden">
-                                    <MockImage
+                                    <img
                                         src={hotel.thumbnailPic?.url || ''}
                                         alt={hotel.title}
                                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"

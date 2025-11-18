@@ -3,11 +3,11 @@ import { Link } from "react-router-dom";
 import { Star } from 'lucide-react'; 
 import type { Room } from "../../types";
 
-const MockImage: React.FC<{ src: string, alt: string, className: string }> = ({ alt, className }) => {
-
-    return <div className={`h-full w-full bg-gray-300 flex items-center justify-center text-sm text-gray-700 ${className}`}>
-        {alt || 'Hotel Image Placeholder'}
-    </div>;
+const MockImage: React.FC<{ src?: string, alt?: string, className?: string }> = ({ src, alt, className }) => {
+    if (src) {
+        return <img src={src} alt={alt} className={`h-full w-full object-cover ${className}`} />;
+    }
+    return <div className={`h-full w-full bg-gray-300 flex items-center justify-center text-sm text-gray-700 ${className}`}>{alt || 'Hotel Image Placeholder'}</div>;
 };
 
 interface FeaturedHotelsProps {}
@@ -29,7 +29,7 @@ const FeaturedHotels: React.FC<FeaturedHotelsProps> = () => {
                 const data = await res.json();
 
                 const list = (data.rooms || []).slice(0, 3).map((room: any) => ({
-                    image: room.photos?.[0]?.url || '',
+                    thumbnailPic: room.thumbnailPic || room.photos?.[0] || null,
                     id: room.id || room._id,
                     name: room.title || 'Room',
                     city: room.city || '',
@@ -97,7 +97,7 @@ const FeaturedHotels: React.FC<FeaturedHotelsProps> = () => {
                             >
                                 <div className="relative h-64 overflow-hidden">
                                     <MockImage
-                                        src={hotel.thumbnail || ''}
+                                        src={hotel.thumbnailPic?.url || ''}
                                         alt={hotel.title}
                                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                                     />

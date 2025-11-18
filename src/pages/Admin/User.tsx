@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import type {UserType} from '../../types';
+import { fetchWithCache, clearCacheKey } from '../../utils/cache';
 
 
 
@@ -26,8 +27,11 @@ const User: React.FC = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(`${apiBaseUrl}/api/users`);
-      setUsers(res.data.users || []);
+      const userData = await fetchWithCache('admin_users', async () => {
+        const res = await axios.get(`${apiBaseUrl}/api/users`);
+        return res.data.users || [];
+      }, 3 * 60 * 1000);
+      setUsers(userData);
     } catch (err) {
       console.error('Failed to fetch users', err);
     } finally {
@@ -58,6 +62,7 @@ const User: React.FC = () => {
       const payload = { ...newAdmin, role: 'admin' };
       await axios.post(`${apiBaseUrl}/api/users`, payload);
       setNewAdmin({ firstName: '', lastName: '', email: '', password: '' });
+      clearCacheKey('admin_users');
       fetchUsers();
       alert('Admin created successfully');
     } catch (err) {
@@ -75,6 +80,7 @@ const User: React.FC = () => {
       await axios.delete(`${apiBaseUrl}/api/users/${id}`);
       setUsers(prev => prev.filter(u => u._id !== id));
       if (selectedUser?._id === id) setSelectedUser(null);
+      clearCacheKey('admin_users');
       alert('User deleted successfully');
     } catch (err) {
       console.error('Failed to delete user', err);

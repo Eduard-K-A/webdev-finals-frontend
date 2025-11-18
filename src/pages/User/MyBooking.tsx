@@ -3,6 +3,7 @@ import { Link, Navigate } from "react-router-dom";
 import axios from "axios";
 import { Hotel, Calendar, Clock, MapPin, Loader2 } from "lucide-react";
 import type { Booking } from "../../types";
+import { fetchWithCache } from "../../utils/cache";
 
 const MyBookings: React.FC = () => {
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -33,14 +34,17 @@ const MyBookings: React.FC = () => {
 
         const headers: any = { 'Authorization': `Bearer ${token}` };
         console.log("Fetching from:", `${apiBaseUrl}/api/bookings`);
-        console.log("Headers:", headers);
         
-        const res = await axios.get(`${apiBaseUrl}/api/bookings`, { headers });
-
-        console.log("Bookings response:", res.data);
-        
-        // Backend returns array directly
-        const bookingData = Array.isArray(res.data) ? res.data : (res.data.bookings || res.data);
+        // Fetch with cache
+        const bookingData = await fetchWithCache(
+          'user_bookings',
+          async () => {
+            const res = await axios.get(`${apiBaseUrl}/api/bookings`, { headers });
+            console.log("Bookings response:", res.data);
+            return Array.isArray(res.data) ? res.data : (res.data.bookings || res.data);
+          },
+          3 * 60 * 1000 // 3 minute TTL for bookings
+        );
 
         if (!bookingData || bookingData.length === 0) {
           setBookings([]);

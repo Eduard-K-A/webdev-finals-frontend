@@ -82,9 +82,14 @@ export interface AuthContextType{
 }
 
 export interface Booking {
-  id: string;
-  room: Room;
-  checkIn: string;
-  checkOut: string;
-  location: string;
+  _id?: string;
+  id?: string;
+  user: string; // user ID reference
+  room: Room; // populated room object
+  checkInDate: string | Date;
+  checkOutDate: string | Date;
+  totalGuests: number;
+  totalPrice: number;
+  status: 'Pending' | 'Confirmed' | 'Cancelled' | 'Completed';
+  bookedAt: string | Date;
 }

@@ -41,7 +41,9 @@ export interface Room {
   pricePerNight: number;
   maxPeople: number;
   amenities: string[];
-  thumbnail: string;
+  thumbnail?: string;
+  // new single thumbnail object
+  thumbnailPic?: Photo;
   photos: Photo[];
   isAvailable: boolean;
   rating?: number; 

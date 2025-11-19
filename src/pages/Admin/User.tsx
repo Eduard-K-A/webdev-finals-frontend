@@ -3,23 +3,26 @@ import axios from 'axios';
 import type { UserType } from '../../types';
 import { fetchWithCache, clearCacheKey } from '../../utils/cache';
 import { Trash2 } from 'lucide-react';
+import { useToast } from '../../context/ToastContext';
+import ConfirmationModal from '../../components/Modals/ConfirmationModal'; // Assuming path
 
 type SortOrder = 'asc' | 'desc';
 
 const User: React.FC = () => {
+  const { addToast } = useToast();
   const [users, setUsers] = useState<UserType[]>([]);
   const [loading, setLoading] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<UserType | null>(null);
+  
   const [sortKey, setSortKey] = useState<keyof UserType>('firstName');
   const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
-
   const [newAdmin, setNewAdmin] = useState({
     firstName: '',
     lastName: '',
     email: '',
     password: '',
   });
-
-
   const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
 
   // --- Fetch all users ---
@@ -56,26 +59,45 @@ const User: React.FC = () => {
       setNewAdmin({ firstName: '', lastName: '', email: '', password: '' });
       clearCacheKey('admin_users');
       fetchUsers();
-      alert('Admin created successfully');
-    } catch (err) {
+      // 2. USE TOAST FOR SUCCESS
+      addToast('Success', 'New admin created successfully!', 'success'); 
+    } catch (err: any) {
       console.error('Failed to create admin', err);
-      alert('Failed to create admin');
+      // 2. USE TOAST FOR ERROR
+      addToast('Error', err.response?.data?.message || 'Failed to create admin', 'error');
     } finally {
       setLoading(false);
     }
   };
 
-  // --- Handle Delete User ---
-  const handleDeleteUser = async (id: string) => {
-    if (!window.confirm('Are you sure you want to delete this user?')) return;
+  // --- Handle Delete User Modal Opener (Replaces old prompt) ---
+  const handleOpenDeleteModal = (user: UserType) => {
+    setUserToDelete(user);
+    setIsDeleteModalOpen(true);
+  };
+  
+  // --- Handle Delete User Confirmation ---
+  const handleConfirmDelete = async () => {
+    if (!userToDelete) return;
+    
+    // Close modal and capture details immediately
+    setIsDeleteModalOpen(false);
+    const user = userToDelete;
+    setUserToDelete(null); 
+
     try {
+      const id = user._id;
       await axios.delete(`${apiBaseUrl}/api/users/${id}`);
       setUsers(prev => prev.filter(u => u._id !== id));
       clearCacheKey('admin_users');
-      alert('User deleted successfully');
-    } catch (err) {
+      
+      // 3. USE TOAST FOR SUCCESS
+      addToast('Success', `User ${user.email} deleted successfully.`, 'success');
+
+    } catch (err: any) {
       console.error('Failed to delete user', err);
-      alert('Failed to delete user');
+      // 3. USE TOAST FOR ERROR
+      addToast('Error', err.response?.data?.message || 'Failed to delete user', 'error');
     }
   };
 
@@ -125,7 +147,8 @@ const User: React.FC = () => {
         </div>
 
         {/* --- Create Admin Form --- */}
-        <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
+        <div className="bg-white 
+          rounded-xl shadow-lg border border-gray-100 p-6">
           <h2 className="text-xl font-semibold mb-4">Create New Admin</h2>
           <form
             onSubmit={handleCreateAdmin}
@@ -216,8 +239,10 @@ const User: React.FC = () => {
                     <td className="px-6 py-4">{u.email}</td>
                     <td className="px-6 py-4 space-x-2 text-sm">
                       <button
-                        onClick={() => handleDeleteUser(u._id)}
+                        // 4. CALL MODAL OPENER
+                        onClick={() => handleOpenDeleteModal(u)} 
                         className="p-2 text-gray-500 hover:text-red-600 transition duration-150 rounded-full"
+                        title={`Delete Admin ${u.email}`}
                       >
                         <Trash2 size={18} />
                       </button>
@@ -272,7 +297,8 @@ const User: React.FC = () => {
                     <td className="px-6 py-4">{u.email}</td>
                     <td className="px-6 py-4 space-x-2 text-sm">
                       <button
-                        onClick={() => handleDeleteUser(u._id)}
+                        // 4. CALL MODAL OPENER
+                        onClick={() => handleOpenDeleteModal(u)}
                         className="p-2 text-gray-500 hover:text-red-600 transition duration-150 rounded-full"
                         title="Delete User"
                       >
@@ -286,6 +312,17 @@ const User: React.FC = () => {
           </table>
         </div>
       </div>
+      
+      {/* 5. RENDER DELETE CONFIRMATION MODAL */}
+      <ConfirmationModal
+          isOpen={isDeleteModalOpen}
+          onClose={() => setIsDeleteModalOpen(false)}
+          onConfirm={handleConfirmDelete}
+          title="Confirm User Deletion"
+          message={`Are you sure you want to permanently delete the user: "${userToDelete?.email}"? This action cannot be undone.`}
+          confirmText="Yes, Delete User"
+          cancelText="Keep User"
+      />
     </div>
   );
 };

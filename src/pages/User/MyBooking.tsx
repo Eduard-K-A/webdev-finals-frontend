@@ -73,6 +73,11 @@ const MyBookings: React.FC = () => {
     };
 
     fetchBookings();
+
+    // Listen for booking updates
+    const handleBookingUpdate = () => fetchBookings();
+    window.addEventListener('bookingUpdated', handleBookingUpdate);
+    return () => window.removeEventListener('bookingUpdated', handleBookingUpdate);
   }, [token]);
 
   // Loading state

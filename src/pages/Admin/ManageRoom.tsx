@@ -5,8 +5,8 @@ import { Edit, Trash2, Plus, Search, DollarSign, ListOrdered, CheckCircle, XCirc
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { fetchWithCache, clearCacheKey } from '../../utils/cache';
-
-// Tag component using brand colors
+import { useToast } from '../../context/ToastContext'; 
+import ConfirmationModal from '../../components/Modals/ConfirmationModal'; 
 const RoomTag: React.FC<{ type: string }> = ({ type }) => (
     <span className="inline-flex items-center rounded-full bg-[var(--color-brand-gold)]/10 px-2 py-0.5 text-xs font-medium text-[var(--color-brand-gold)] border border-[var(--color-brand-gold)]/50">
         {type}
@@ -14,8 +14,7 @@ const RoomTag: React.FC<{ type: string }> = ({ type }) => (
 );
 
 // Stat Card component
-const StatCard: React.FC<{ title: string; value: string | number; color: string;
-icon: React.ReactNode }> = ({ title, value, color, icon }) => (
+const StatCard: React.FC<{ title: string; value: string | number; color: string; icon: React.ReactNode }> = ({ title, value, color, icon }) => (
     <div className={`p-4 rounded-xl shadow-sm border border-gray-200 flex items-center justify-between text-white ${color}`}>
         <div>
             <p className="text-sm font-medium text-gray-800">{title}</p>
@@ -23,20 +22,19 @@ icon: React.ReactNode }> = ({ title, value, color, icon }) => (
         </div>
         <div className={`p-2 rounded-full text-white bg-[var(--color-brand-navy)]/10`}>
             {icon}
-    
         </div>
     </div>
 );
 
+// Define RoomType explicitly to resolve the SetStateAction error
+type RoomType = 'Single' | 'Double' | 'Suite' | 'Family' | 'Executive' | string;
 
+// --- RoomFormModal Component (Abbreviated for brevity, full logic included) ---
 interface RoomFormModalProps {
     roomData: Room | null;
     onClose: () => void;
     onSave: () => void;
 }
-
-// Define RoomType explicitly to resolve the SetStateAction error (Fix #1)
-type RoomType = 'Single' | 'Double' | 'Suite' | 'Family' | 'Executive' | string;
 
 const RoomFormModal: React.FC<RoomFormModalProps> = ({ roomData, onClose, onSave }) => {
     const isEditing = !!roomData;
@@ -48,35 +46,33 @@ const RoomFormModal: React.FC<RoomFormModalProps> = ({ roomData, onClose, onSave
     // State for form fields
     const [title, setTitle] = useState(roomData?.title || '');
     const [description, setDescription] = useState(roomData?.description || '');
-    // FIXED: Use RoomType to allow any existing string or fallback (Fix #1)
-    const [type, setType] = useState<RoomType>(roomData?.type || 'Single'); 
+    const [type, setType] = useState<RoomType>(roomData?.type || 'Single');
     const [pricePerNight, setPricePerNight] = useState(roomData?.pricePerNight.toString() || '');
     const [maxPeople, setMaxPeople] = useState(roomData?.maxPeople.toString() || '1');
     const initialAmenities = roomData?.amenities.join(', ') || '';
     const [amenitiesString, setAmenitiesString] = useState(initialAmenities);
     const [isAvailable, setIsAvailable] = useState(roomData?.isAvailable ?? true);
     const [rating, setRating] = useState(roomData?.rating?.toString() || '0');
-
-    // 1. Files newly selected for upload (objects)
+    
+    // Image management states
     const [imagesToUpload, setImagesToUpload] = useState<File[]>([]);
     const [existingPhotoUrls, setExistingPhotoUrls] = useState<string[]>(initialExistingUrls);
     const [fileUrlMap, setFileUrlMap] = useState<Map<string, File>>(new Map());
     const [allPreviewUrls, setAllPreviewUrls] = useState<string[]>(initialExistingUrls);
-
     const [selectedThumbnailUrl, setSelectedThumbnailUrl] = useState<string | null>(roomData?.thumbnailPic?.url || null);
+    
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState('');
-
     const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
     const MAX_IMAGES = 10;
-
-    // useEffect to update allPreviewUrls whenever state changes
+    
+    // Sync allPreviewUrls
     useEffect(() => {
         const newFileUrls = Array.from(fileUrlMap.keys());
         setAllPreviewUrls([...existingPhotoUrls, ...newFileUrls]);
     }, [existingPhotoUrls, fileUrlMap]);
 
-    // --- Image Handling (Fix #2 continued) ---
+    // Image Handling
     const handleFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (!e.target.files) return;
         const newFiles = Array.from(e.target.files);
@@ -85,7 +81,6 @@ const RoomFormModal: React.FC<RoomFormModalProps> = ({ roomData, onClose, onSave
         const totalImages = currentTotal + newFiles.length;
         
         let allowedFiles = newFiles;
-
         if (totalImages > MAX_IMAGES) {
             const spaceLeft = MAX_IMAGES - currentTotal;
             allowedFiles = newFiles.slice(0, spaceLeft);
@@ -99,10 +94,7 @@ const RoomFormModal: React.FC<RoomFormModalProps> = ({ roomData, onClose, onSave
             setMessage('');
         }
         
-        // Add allowed files to state
         setImagesToUpload(prev => [...prev, ...allowedFiles]);
-        
-        // Create Object URLs and update map
         setFileUrlMap(prevMap => {
             const newUrlMap = new Map(prevMap);
             allowedFiles.forEach(file => {
@@ -111,9 +103,7 @@ const RoomFormModal: React.FC<RoomFormModalProps> = ({ roomData, onClose, onSave
             });
             return newUrlMap;
         });
-
-
-        (e.target as HTMLInputElement).value = ''; // Clear input
+        (e.target as HTMLInputElement).value = '';
     };
 
     const handleRemoveImage = (urlToRemove: string) => {
@@ -140,7 +130,7 @@ const RoomFormModal: React.FC<RoomFormModalProps> = ({ roomData, onClose, onSave
         }
     };
     
-    // --- Submission Logic ---
+    // Submission Logic
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setMessage('');
@@ -152,7 +142,7 @@ const RoomFormModal: React.FC<RoomFormModalProps> = ({ roomData, onClose, onSave
 
         try {
             setLoading(true);
-
+            
             // 1. Upload new images
             let uploadedPhotos: Photo[] = [];
             if (imagesToUpload.length > 0) {
@@ -165,25 +155,23 @@ const RoomFormModal: React.FC<RoomFormModalProps> = ({ roomData, onClose, onSave
                 uploadedPhotos = uploadRes.data.data.images || [];
             }
 
-            // 2. Consolidate photos: Existing non-removed photos + newly uploaded ones
+            // 2. Consolidate photos
             const existingPhotos: Photo[] = roomData?.photos.filter(p => existingPhotoUrls.includes(p.url)) || [];
             const finalPhotos: Photo[] = [...existingPhotos, ...uploadedPhotos];
             
             // 3. Determine the Thumbnail 
-            let thumbnailPic: Photo | null = null; 
+            let thumbnailPic: Photo | null = null;
             if (selectedThumbnailUrl) {
                 let potentialThumbnail = finalPhotos.find(p => p.url === selectedThumbnailUrl);
                 if (!potentialThumbnail && isEditing && roomData?.photos) {
-                    // This finds the original Photo object with the necessary 'public_id'
                     potentialThumbnail = roomData.photos.find(p => p.url === selectedThumbnailUrl);
                 }
 
                 if (potentialThumbnail) {
-                    // Use the full Photo object (url and public_id)
-                    thumbnailPic = potentialThumbnail; 
+                    thumbnailPic = potentialThumbnail;
                 }
             } else if (finalPhotos.length > 0) {
-                 // Fallback to the first image if no thumbnail is explicitly selected
+                 // Fallback to the first image
                 thumbnailPic = finalPhotos[0];
             }
             
@@ -196,14 +184,13 @@ const RoomFormModal: React.FC<RoomFormModalProps> = ({ roomData, onClose, onSave
                 maxPeople: Number(maxPeople),
                 amenities: amenitiesString ? amenitiesString.split(',').map(a => a.trim()) : [],
                 photos: finalPhotos,
-                // Ensure thumbnailPic is explicitly null if no image is selected/found
                 thumbnailPic: thumbnailPic, 
                 isAvailable: isAvailable, 
                 rating: Number(rating),
             };
-
+            
             if (isEditing) {
-                const roomId = roomData._id; // Use only MongoDB ObjectId
+                const roomId = roomData._id;
                 await axios.put(`${apiBaseUrl}/api/rooms/${roomId}`, roomPayload);
                 setMessage('Room updated successfully');
             } else {
@@ -211,11 +198,12 @@ const RoomFormModal: React.FC<RoomFormModalProps> = ({ roomData, onClose, onSave
                 setMessage('Room created successfully');
             }
 
+            // Clear cache keys for the room lists
             clearCacheKey('all_rooms');
             clearCacheKey('admin_rooms');
             clearCacheKey('featured_hotels');
 
-            onSave(); 
+            onSave();
         } catch (err: any) {
             console.error(err);
             setMessage(err?.response?.data?.message || 'Upload or save failed');
@@ -224,13 +212,12 @@ const RoomFormModal: React.FC<RoomFormModalProps> = ({ roomData, onClose, onSave
         }
     };
     
-
     // Tailwind classes using CSS variables
     const inputClass = "w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-gold)] transition duration-150";
     const buttonGold = "bg-[var(--color-brand-gold)] hover:bg-[var(--color-brand-gold-hover)] text-[var(--color-brand-navy)] font-semibold shadow-md";
     const buttonNavy = "bg-[var(--color-brand-navy)] hover:bg-gray-700 text-white font-semibold";
 
-    return (
+    return ( 
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto p-8">
                 {/* Modal Header */}
@@ -255,7 +242,7 @@ const RoomFormModal: React.FC<RoomFormModalProps> = ({ roomData, onClose, onSave
                             <label className="block text-sm font-medium mb-1 text-gray-700">Room Type *</label>
                             <select value={type} onChange={(e) => setType(e.target.value as RoomType)} required className={inputClass}>
                                 {['Single', 'Double', 'Suite', 'Family', 'Executive'].map(t => (
-                                    <option key={t} value={t}>{t}</option>
+                                <option key={t} value={t}>{t}</option>
                                 ))}
                             </select>
                         </div>
@@ -294,7 +281,7 @@ const RoomFormModal: React.FC<RoomFormModalProps> = ({ roomData, onClose, onSave
                             <label className="block text-sm font-medium mb-1 text-gray-700">Amenities (comma separated)</label>
                             <input value={amenitiesString} onChange={(e) => setAmenitiesString(e.target.value)} placeholder="Wifi, Air Conditioning, Mini Bar" className={inputClass} />
                         </div>
-                         {/* Availability Checkbox */}
+                        {/* Availability Checkbox */}
                         <div className='flex items-end'>
                             <label className='flex items-center space-x-2 text-gray-700'>
                                 <input
@@ -332,34 +319,31 @@ const RoomFormModal: React.FC<RoomFormModalProps> = ({ roomData, onClose, onSave
                                 Upload Photos (Max {MAX_IMAGES})
                             </label>
                         </div>
-                        
                         <p className="text-xs text-gray-500 mb-4">You can upload up to {MAX_IMAGES} images. Click an image to set it as the main **Thumbnail**.</p>
                         
                         {/* Image Previews */}
                         <div className="grid grid-cols-4 md:grid-cols-5 gap-3">
-                            {/* FIXED: Use allPreviewUrls for rendering */}
                             {allPreviewUrls.map((url, idx) => {
-                                // Check if the URL is a new file's Object URL
                                 return (
                                     <div key={url} className="relative aspect-square">
                                         <img
                                             src={url}
                                             alt={`Preview ${idx + 1}`}
                                             className={`w-full h-full object-cover rounded-md border-2 cursor-pointer transition ${
-                                                selectedThumbnailUrl === url ? 'border-[var(--color-brand-gold)] ring-2 ring-[var(--color-brand-gold)]' : 'border-gray-200 hover:border-gray-400'
+                                                selectedThumbnailUrl === url 
+                                                    ? 'border-[var(--color-brand-gold)] ring-2 ring-[var(--color-brand-gold)]' 
+                                                    : 'border-gray-200 hover:border-gray-400'
                                             }`}
                                             onClick={() => setSelectedThumbnailUrl(url)}
                                         />
                                         {/* Remove Button */}
-                                        <button
+                                        <button 
                                             type="button"
-                                            // FIXED: Only pass the URL for removal; the function figures out if it's new or old (Fix #2)
                                             onClick={(e) => { e.stopPropagation(); handleRemoveImage(url); }}
                                             className="absolute top-[-8px] right-[-8px] bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-700 transition shadow-lg"
                                         >
                                             <XCircle className='w-4 h-4' />
                                         </button>
-                                        
                                         {/* Thumbnail Badge */}
                                         {selectedThumbnailUrl === url && (
                                             <span className='absolute bottom-1 left-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-[var(--color-brand-gold)] text-[var(--color-brand-navy)]'>
@@ -403,9 +387,13 @@ const RoomFormModal: React.FC<RoomFormModalProps> = ({ roomData, onClose, onSave
     );
 };
 
-// --- Main ManageRoom Component ---
+
+// --- Main ManageRoom Component
+
 const ManageRoom: React.FC = () => {
     const { isLoggedIn, isAdmin } = useAuth();
+    // 1. USE TOAST HOOK
+    const { addToast } = useToast();
     const navigate = useNavigate();
 
     const [rooms, setRooms] = useState<Room[]>([]);
@@ -414,6 +402,10 @@ const ManageRoom: React.FC = () => {
     const [roomToEdit, setRoomToEdit] = useState<Room | null>(null);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
     const [authChecked, setAuthChecked] = useState(false);
+    
+    // 2. NEW STATE FOR DELETE MODAL
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [roomToDelete, setRoomToDelete] = useState<Room | null>(null);
 
     useEffect(() => {
         setAuthChecked(true);
@@ -434,9 +426,8 @@ const ManageRoom: React.FC = () => {
                 async () => {
                     const res = await axios.get(`${apiBaseUrl}/api/rooms`);
                     return (res.data.rooms || []).map((r: any) => ({ ...r, id: r.id || r._id }));
-    
                 },
-                3 * 60 * 1000 
+                3 * 60 * 1000
             );
             setRooms(fetched);
         } catch (err) {
@@ -447,7 +438,7 @@ const ManageRoom: React.FC = () => {
     useEffect(() => {
         fetchRooms();
     }, []);
-
+    
     // --- Room Actions ---
     const handleAddRoom = () => {
         setRoomToEdit(null);
@@ -458,25 +449,44 @@ const ManageRoom: React.FC = () => {
         setRoomToEdit(room);
         setIsModalOpen(true);
     };
+    
+    // 3. NEW: Function to open the confirmation modal
+    const handleOpenDeleteModal = (room: Room) => {
+        setRoomToDelete(room);
+        setIsDeleteModalOpen(true);
+    };
 
-    // Optimized delete logic
-    const handleDeleteRoom = async (room: Room) => {
-        if (!confirm(`Are you sure you want to delete room: ${room.title}?`)) return;
+    // 4. NEW: Function to execute deletion logic with Toast
+    const handleConfirmDelete = async () => {
+        if (!roomToDelete) return;
+        
+        // Close modal and capture room details immediately
+        setIsDeleteModalOpen(false);
+        const room = roomToDelete;
+        setRoomToDelete(null); // Clear state
+
         try {
             const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
             const roomId = room._id; // Use only MongoDB ObjectId
             await axios.delete(`${apiBaseUrl}/api/rooms/${roomId}`);
+            
             clearCacheKey('all_rooms');
             clearCacheKey('admin_rooms');
             clearCacheKey('featured_hotels');
+            
             await fetchRooms(); // Re-fetch the list
-            setSuccessMessage('Room deleted successfully');
-            setTimeout(() => setSuccessMessage(null), 2500);
-        } catch (err) {
+            
+            // Show Success Toast
+            addToast('Success', `Room "${room.title}" deleted successfully.`, 'success');
+            
+        } catch (err: any) {
             console.error('Failed to delete room', err);
-            alert('Failed to delete room');
+            // Show Error Toast
+            addToast('Error', err.response?.data?.message || 'Failed to delete room. Please try again.', 'error');
         }
     };
+
+    // Removed original handleDeleteRoom
 
     // Optimized modal close after update
     const handleModalClose = async (msg?: string) => {
@@ -504,14 +514,13 @@ const ManageRoom: React.FC = () => {
         const totalPrice = rooms.reduce((sum, r) => sum + r.pricePerNight, 0);
         const avgPrice = total > 0 ? (totalPrice / total).toFixed(0) : '0';
         
-        return { total, available, unavailable, avgPrice 
-        };
+        return { total, available, unavailable, avgPrice };
     }, [rooms]);
-    
 
     // Tailwind classes using CSS variables
-    const goldText = "text-[var(--color-brand-gold)]";
     const navyText = "text-[var(--color-brand-navy)]";
+    const goldText = "text-[var(--color-brand-gold)]";
+
     if (!authChecked) {
         return (
             <div className="flex items-center justify-center h-screen animate-pulse text-gray-500 text-xl">
@@ -520,6 +529,8 @@ const ManageRoom: React.FC = () => {
             </div>
         );
     }
+    
+    // --- JSX Return ---
     return (
         <div className="min-h-screen bg-gray-50 p-6 md:p-10 font-sans">
             <div className="max-w-7xl mx-auto">
@@ -530,11 +541,13 @@ const ManageRoom: React.FC = () => {
                         <p className="text-gray-600">Manage all rooms and their availability</p>
                     </div>
                 </div>
+            
                 {successMessage && (
                   <div className="mb-4 p-3 rounded-lg bg-green-100 text-green-800 text-center font-semibold border border-green-300 animate-fade-in">
                     {successMessage}
                   </div>
                 )}
+            
                 {/* --- Search and Add Button --- */}
                 <div className="flex justify-between items-center mb-8">
                     <div className="relative w-full max-w-sm">
@@ -561,11 +574,11 @@ const ManageRoom: React.FC = () => {
                 {/* --- Stats Cards --- */}
                 <div className="grid grid-cols-4 gap-6 mb-10">
                     <StatCard 
-                        title="Total Rooms" 
-                        value={stats.total} 
+                        title="Total Rooms"
+                        value={stats.total}
                         color="bg-white"
                         icon={<ListOrdered className="w-6 h-6 text-[var(--color-brand-navy]" />}
-                    />
+                        />
                     <StatCard 
                         title="Available Now" 
                         value={stats.available} 
@@ -574,12 +587,12 @@ const ManageRoom: React.FC = () => {
                     />
                     <StatCard 
                         title="Unavailable" 
-                        value={stats.unavailable} 
+                        value={stats.unavailable}
                         color="bg-white"
                         icon={<XCircle className="w-6 h-6 text-red-600" />}
                     />
-                    <StatCard 
-                        title="Avg. Price" 
+                    <StatCard
+                        title="Avg. Price"
                         value={`$${stats.avgPrice}`} 
                         color="bg-white"
                         icon={<DollarSign className="w-6 h-6 text-[var(--color-brand-gold)]" />}
@@ -589,7 +602,6 @@ const ManageRoom: React.FC = () => {
                 {/* --- Room Table --- */}
                 <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-100">
                     <h2 className={`text-xl font-semibold mb-4 ${navyText}`}>Room List</h2>
-                  
                     <table className="min-w-full divide-y divide-gray-200">
                         <thead>
                             <tr>
@@ -608,7 +620,7 @@ const ManageRoom: React.FC = () => {
                                     <tr key={room.id} className="hover:bg-gray-50 transition duration-150">
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 flex items-center space-x-3">
                                             <img 
-                                                src={room.thumbnailPic?.url || room.photos?.[0]?.url || 'https://via.placeholder.com/60'} 
+                                                src={room.thumbnailPic?.url || room.photos?.[0]?.url || 'https://via.placeholder.com/60'}
                                                 alt={room.title}
                                                 className="w-12 h-12 object-cover rounded-md flex-shrink-0 border border-gray-200"
                                             />
@@ -633,7 +645,7 @@ const ManageRoom: React.FC = () => {
                                         <td className="px-6 py-4 whitespace-nowrap text-sm">
                                             <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
                                                 room.isAvailable 
-                                                    ? 'bg-green-100 text-green-800' 
+                                                    ? 'bg-green-100 text-green-800'
                                                     : 'bg-red-100 text-red-800'
                                             }`}>
                                                 {room.isAvailable ? 'Available' : 'Unavailable'}
@@ -641,14 +653,15 @@ const ManageRoom: React.FC = () => {
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-3">
                                             <button 
-                                                onClick={() => handleEditRoom(room)} 
+                                                onClick={() => handleEditRoom(room)}
                                                 title="Edit Room"
                                                 className={`text-gray-500 hover:${goldText} transition`}
                                             >
                                                 <Edit className="w-5 h-5" />
                                             </button>
                                             <button 
-                                                onClick={() => handleDeleteRoom(room)} 
+                                                // 5. CALL NEW MODAL OPENER
+                                                onClick={() => handleOpenDeleteModal(room)} 
                                                 title="Delete Room"
                                                 className="text-gray-500 hover:text-red-600 transition"
                                             >
@@ -669,14 +682,25 @@ const ManageRoom: React.FC = () => {
                 </div>
             </div>
 
-            {/* Render Modal */}
+            {/* Render Modal for Edit/Add */}
             {isModalOpen && (
                 <RoomFormModal 
                     roomData={roomToEdit} 
-                    onClose={() => handleModalClose()} 
-                    onSave={() => handleModalClose(isModalOpen && roomToEdit ? 'Room updated successfully' : 'Room created successfully')} 
+                    onClose={() => handleModalClose()}
+                    onSave={() => handleModalClose(isModalOpen && roomToEdit ? 'Room updated successfully' : 'Room created successfully')}
                 />
             )}
+            
+            {/* 6. RENDER DELETE CONFIRMATION MODAL */}
+            <ConfirmationModal
+                isOpen={isDeleteModalOpen}
+                onClose={() => setIsDeleteModalOpen(false)}
+                onConfirm={handleConfirmDelete} // The function that executes the API call
+                title="Confirm Room Deletion"
+                message={`Are you sure you want to permanently delete the room: "${roomToDelete?.title || 'this room'}"? This action cannot be undone.`}
+                confirmText="Yes, Delete Room"
+                cancelText="Keep Room"
+            />
         </div>
     );
 };

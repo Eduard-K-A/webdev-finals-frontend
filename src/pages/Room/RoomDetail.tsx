@@ -2,7 +2,7 @@ import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { getCached, setCached } from '../../utils/cache';
-// Import all necessary icons
+import { useAuth } from '../../context/AuthContext';
 import {
     Users, Star, Wifi, Tv, Coffee, Check, Bed, Car, Dumbbell, Sun, Utensils,
     Calendar, Users as GuestIcon, Tag
@@ -12,16 +12,6 @@ import type { Room as RoomType } from '../../types';
 // Define the shape of a date range for bookings
 type BookingRange = { start: string; end: string };
 
-// ** MOCK useAuth to resolve the compilation error. **
-const useAuth = () => {
-    const [isLoggedIn] = useState(true);
-    
-    return { 
-        isLoggedIn, 
-    };
-};
-
-
 const getTodayDate = () => {
     const today = new Date();
     const year = today.getFullYear();
@@ -29,7 +19,6 @@ const getTodayDate = () => {
     const day = String(today.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
 };
-
 // --- Amenity Icon Component (uses CSS variable for color) ---
 const AmenityIcon = ({ name }: { name: string }) => {
     const lowerName = name.toLowerCase();
@@ -458,18 +447,6 @@ const RoomDetail: React.FC = () => {
                                     <span>Total Price</span>
                                     <span>${finalPrice.toFixed(2)}</span>
                                 </div>
-                            </div>
-                        )}
-                        
-                        {/* Conflict List / Pwedeng alisin na  */}
-                        {bookedRanges.length > 0 && (
-                            <div className="text-sm text-red-700 bg-red-100 p-3 rounded-lg border border-red-300">
-                                <p className='font-semibold mb-1'>Booked Dates (Simulated):</p>
-                                <ul className='list-disc list-inside space-y-0.5'>
-                                    {bookedRanges.map((r, i) => (
-                                        <li key={i}>{r.start} to {r.end} (Unavailable)</li>
-                                    ))}
-                                </ul>
                             </div>
                         )}
 

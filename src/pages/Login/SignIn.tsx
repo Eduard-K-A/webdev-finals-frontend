@@ -1,11 +1,14 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { User, Lock } from "lucide-react";
+import { User, Lock, Eye, EyeOff } from "lucide-react"; // Added Eye/EyeOff
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 
 // --- AnimatedText (same as Register) ---
-const AnimatedText: React.FC<{ text: string; style?: React.CSSProperties }> = ({ text, style }) => (
+const AnimatedText: React.FC<{ text: string; style?: React.CSSProperties }> = ({
+  text,
+  style,
+}) => (
   <h1 className="text-4xl md:text-5xl font-bold mb-4 text-[#362f22] flex flex-wrap">
     {text.split("").map((char, index) => (
       <span
@@ -30,6 +33,8 @@ interface InputFieldProps {
   value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   icon: React.ReactNode;
+  rightIcon?: React.ReactNode; // Added for show/hide
+  onRightIconClick?: () => void; // Added for show/hide click
 }
 
 const InputField: React.FC<InputFieldProps> = ({
@@ -39,6 +44,8 @@ const InputField: React.FC<InputFieldProps> = ({
   value,
   onChange,
   icon,
+  rightIcon,
+  onRightIconClick,
 }) => (
   <div className="relative">
     <label className="block text-sm font-medium text-[#362f22] mb-1">{label}</label>
@@ -52,6 +59,15 @@ const InputField: React.FC<InputFieldProps> = ({
         required
         className={inputBase}
       />
+      {rightIcon && (
+        <button
+          type="button"
+          onClick={onRightIconClick}
+          className="absolute right-3 top-3 text-[#d4a574] focus:outline-none"
+        >
+          {rightIcon}
+        </button>
+      )}
     </div>
   </div>
 );
@@ -59,6 +75,7 @@ const InputField: React.FC<InputFieldProps> = ({
 const SignIn: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false); // Added state
   const [message, setMessage] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
   const { login } = useAuth();
@@ -86,11 +103,7 @@ const SignIn: React.FC = () => {
       
       // Redirect after 1 second
       setTimeout(() => {
-        if (res.data.user.role === 'admin') {
-          navigate('/');
-        } else {
-          navigate('/');
-        }
+        navigate('/');
       }, 1000);
     } catch (err) {
       if (axios.isAxiosError(err) && err.response) {
@@ -155,11 +168,13 @@ const SignIn: React.FC = () => {
 
                 <InputField
                   label="Password"
-                  type="password"
+                  type={showPassword ? "text" : "password"} // Toggle
                   placeholder="Enter your password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   icon={<Lock className="w-5 h-5" />}
+                  rightIcon={showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  onRightIconClick={() => setShowPassword((prev) => !prev)}
                 />
 
                 <button
@@ -178,7 +193,6 @@ const SignIn: React.FC = () => {
                 >
                   Register here 
                 </Link> 
-                  
               </p>
             </div>
           </div>

@@ -76,17 +76,6 @@ const FeaturedHotels: React.FC<FeaturedHotelsProps> = () => {
 
     const totalPages = Math.ceil(hotelsList.length / roomsPerPage);
 
-    const handleNextPage = () => {
-        if (currentPage < totalPages) {
-            setCurrentPage((prev) => prev + 1);
-        }
-    };
-
-    const handlePrevPage = () => {
-        if (currentPage > 1) {
-            setCurrentPage((prev) => prev - 1);
-        }
-    };
 
     useEffect(() => {
         const interval = setInterval(() => {

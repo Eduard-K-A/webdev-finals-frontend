@@ -201,7 +201,7 @@ const RoomFormModal: React.FC<RoomFormModalProps> = ({ roomData, onClose, onSave
             };
 
             if (isEditing) {
-                const roomId = roomData.id || (roomData as any)._id; 
+                const roomId = roomData._id; // Use only MongoDB ObjectId
                 await axios.put(`${apiBaseUrl}/api/rooms/${roomId}`, roomPayload);
                 setMessage('Room updated successfully');
             } else {
@@ -439,26 +439,29 @@ const ManageRoom: React.FC = () => {
         setIsModalOpen(true);
     };
 
+    // Optimized delete logic
     const handleDeleteRoom = async (room: Room) => {
         if (!confirm(`Are you sure you want to delete room: ${room.title}?`)) return;
         try {
             const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
-            const roomId = room.id || (room as any)._id; 
+            const roomId = room._id; // Use only MongoDB ObjectId
             await axios.delete(`${apiBaseUrl}/api/rooms/${roomId}`);
-            
             clearCacheKey('all_rooms');
             clearCacheKey('admin_rooms');
             clearCacheKey('featured_hotels');
-            
-            fetchRooms(); // Re-fetch the list
+            await fetchRooms(); // Re-fetch the list
+            alert('Room deleted successfully');
         } catch (err) {
             console.error('Failed to delete room', err);
+            alert('Failed to delete room');
         }
     };
 
-    const handleModalClose = () => {
+    // Optimized modal close after update
+    const handleModalClose = async () => {
         setRoomToEdit(null);
         setIsModalOpen(false);
+        await fetchRooms(); // Ensure room list is updated after modal closes
     };
 
     // --- Filtered/Computed Data ---
@@ -524,7 +527,7 @@ const ManageRoom: React.FC = () => {
                         title="Total Rooms" 
                         value={stats.total} 
                         color="bg-white"
-                        icon={<ListOrdered className="w-6 h-6 text-[var(--color-brand-navy)]" />}
+                        icon={<ListOrdered className="w-6 h-6 text-[var(--color-brand-navy]" />}
                     />
                     <StatCard 
                         title="Available Now" 
@@ -633,10 +636,7 @@ const ManageRoom: React.FC = () => {
                 <RoomFormModal 
                     roomData={roomToEdit} 
                     onClose={handleModalClose} 
-                    onSave={() => {
-                        handleModalClose();
-                        fetchRooms();
-                    }} 
+                    onSave={handleModalClose}
                 />
             )}
         </div>

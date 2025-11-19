@@ -165,24 +165,7 @@ const FeaturedHotels: React.FC<FeaturedHotelsProps> = () => {
                     })}
                 </div>
 
-                {/* Pagination Controls */}
-                <div className="flex justify-center mt-4">
-                    <button
-                        onClick={handlePrevPage}
-                        disabled={currentPage === 1}
-                        className="px-4 py-2 mx-1 bg-gray-200 rounded disabled:opacity-50"
-                    >
-                        Previous
-                    </button>
-                    <span className="px-4 py-2">Page {currentPage} of {totalPages}</span>
-                    <button
-                        onClick={handleNextPage}
-                        disabled={currentPage === totalPages}
-                        className="px-4 py-2 mx-1 bg-gray-200 rounded disabled:opacity-50"
-                    >
-                        Next
-                    </button>
-                </div>
+    
 
                 {/* View All Button */}
                 <div className="text-center mt-12">

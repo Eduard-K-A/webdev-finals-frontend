@@ -1,5 +1,7 @@
 import React, { useState } from "react";
+import Footer from "../../components/Dashboard/Footer";
 import { useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 
 const FAQ: React.FC = () => {
   const navigate = useNavigate();
@@ -23,18 +25,19 @@ const FAQ: React.FC = () => {
 
   return (
     <div className="relative">
-      
+      <div className="max-w-4xl mx-auto p-8 relative">
       <button
-        onClick={() => navigate("/")}
-        className="fixed top-4 left-4 bg-white border-2 border-[#d4a574] text-[#0a1e3d] hover:bg-[#d4a574] hover:text-white rounded-full p-3 shadow-md transition-colors duration-200 z-50 mt-20"
-      >
-        Back
-      </button>
+          onClick={() => navigate("/")}
+          className="absolute top-8-left-12 sm:left- bg-white border-2 border-[#0a1e3d] text-[#0a1e3d] hover:bg-[#0a1e3d] hover:text-white rounded-full p-2 shadow-md transition-colors duration-200 z-10"
+          aria-label="Go back to home page" 
+        >
+          <ArrowLeft className="w-5 h-5" />
+        </button>
 
-      <div className="max-w-4xl mx-auto p-8">
         <h2 className="text-3xl font-bold mb-6 text-center text-[var(--color-brand-navy)]">
           Frequently Asked Questions
         </h2>
+        
         <div className="space-y-4">
           {faqs.map((faq, idx) => {
             const isOpen = openIndex === idx;
@@ -69,6 +72,7 @@ const FAQ: React.FC = () => {
           })}
         </div>
       </div>
+      <Footer/>
     </div>
   );
 };

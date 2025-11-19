@@ -22,14 +22,31 @@ const EditBookingModal: React.FC<EditBookingModalProps> = ({ booking, onClose, o
   const [checkOutDate, setCheckOutDate] = useState(formatDateToInput(booking.checkOutDate));
   const [totalGuests, setTotalGuests] = useState(booking.totalGuests || 1); // 
   const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   
   // Use room.maxPeople  as the max guest limit
   const maxGuests = booking.room?.maxPeople || 6; 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSaving(true);
+    setError(null);
 
+    // Frontend date validation
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    const checkIn = new Date(checkInDate);
+    const checkOut = new Date(checkOutDate);
+
+    if (checkIn < today) {
+      setError("Check-in date cannot be in the past.");
+      return;
+    }
+    if (checkOut <= checkIn) {
+      setError("Check-out date must be after check-in date.");
+      return;
+    }
+
+    setIsSaving(true);
     const updatedData: Partial<Booking> = {
       _id: booking._id,
       checkInDate: new Date(checkInDate).toISOString(),
@@ -74,6 +91,12 @@ const EditBookingModal: React.FC<EditBookingModalProps> = ({ booking, onClose, o
 
         {/* Modal Body (Form) */}
         <form onSubmit={handleSubmit} className="p-6 pt-0 space-y-5">
+          {/* Error Message */}
+          {error && (
+            <div className="w-full mb-2 text-center text-red-600 bg-red-100 border border-red-200 rounded p-2">
+              {error}
+            </div>
+          )}
           {/* Check-in Date */}
           <div>
             <label htmlFor="checkIn" className="block text-sm font-medium text-gray-700 mb-2">

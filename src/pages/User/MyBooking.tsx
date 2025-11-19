@@ -34,7 +34,7 @@ const MyBookings: React.FC = () => {
 
         const headers: any = { 'Authorization': `Bearer ${token}` };
         console.log("Fetching from:", `${apiBaseUrl}/api/bookings`);
-        
+
         // Fetch with cache
         const bookingData = await fetchWithCache(
           'user_bookings',
@@ -58,7 +58,7 @@ const MyBookings: React.FC = () => {
         console.error("Response data:", err.response?.data);
         console.error("Response status:", err.response?.status);
         setBookings([]);
-        
+
         // Better error messages
         if (err.response?.status === 401) {
           setError("Authentication failed. Please log in again.");
@@ -106,7 +106,7 @@ const MyBookings: React.FC = () => {
       <h1 className="text-3xl font-bold text-[#362f22] mb-6">My Bookings</h1>
 
       <div className="w-full max-w-3xl space-y-6">
-        {bookings.map((b) => (
+        {bookings.filter(b => b.room).map((b) => (
           <div
             key={b._id || b.id}
             className="shadow-lg rounded-2xl border border-[#e1d7c6] bg-[#faf7f2] hover:shadow-xl transition-all duration-300 p-6"

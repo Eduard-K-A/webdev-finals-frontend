@@ -1,11 +1,15 @@
+// src/pages/User/MyBooking.tsx (Updated)
+
 import React, { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import axios from "axios";
-import { Hotel, Loader2, Calendar, Users, Edit, X } from "lucide-react";
+import { Hotel, Loader2, Calendar, Users, X } from "lucide-react"; 
 import type { Booking } from "../../types";
 import { fetchWithCache, clearCacheKey } from "../../utils/cache"; 
-import EditBookingModal from "../../components/EditBookingModal"; 
 import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
+// ADDED: Import the new modal component
+import ConfirmationModal from "../../components/Modals/ConfirmationModal"; 
 
 // Helper function to format date to MM/DD/YYYY
 const formatDate = (dateString: string | Date) => {
@@ -14,7 +18,7 @@ const formatDate = (dateString: string | Date) => {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
-  }); 
+  });
 };
 
 // Status Styling Helper Function
@@ -38,10 +42,13 @@ const MyBookings: React.FC = () => {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentBooking, setCurrentBooking] = useState<Booking | null>(null);
+  
+  // ADDED: State for managing the Confirmation Modal
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+  const [bookingToCancelId, setBookingToCancelId] = useState<string | null>(null);
 
   const { isLoggedIn } = useAuth();
+  const { addToast } = useToast(); 
 
   const token = localStorage.getItem("token");
   const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
@@ -68,7 +75,7 @@ const MyBookings: React.FC = () => {
           const res = await axios.get(`${apiBaseUrl}/api/bookings`, { headers });
           return Array.isArray(res.data) ? res.data : (res.data.bookings || res.data);
         },
-        3 * 60 * 1000 // 3 minute TTL for bookings
+        3 * 60 * 1000 // 3 minute TTL
       );
 
       if (!bookingData || bookingData.length === 0) {
@@ -98,62 +105,51 @@ const MyBookings: React.FC = () => {
     return () => window.removeEventListener('bookingUpdated', handleBookingUpdate);
   }, [token]);
 
-  // --- Handlers for Edit/Cancel ---
-  const handleEdit = (booking: Booking) => {
-    if (booking.room) {
-      setCurrentBooking(booking);
-      setIsModalOpen(true);
-    } else {
-      console.error("Cannot edit: Booking is missing room details.");
-      alert("Cannot edit this booking: Room details are missing.");
-    }
-  };
+  // --- Handlers for Cancel ---
+  // MODIFIED: This is now the final confirmation step triggered by the modal
+  const handleConfirmCancel = async () => {
+    if (!bookingToCancelId) return;
 
-  const handleCancel = async (bookingId: string) => {
-    if (!window.confirm("Are you sure you want to cancel this booking? This action cannot be undone.")) {
-      return;
-    }
+    setIsCancelModalOpen(false); // Close modal right away
+    const bookingId = bookingToCancelId;
+    setBookingToCancelId(null);
 
     try {
       setLoading(true);
+
       await axios.put(
         `${apiBaseUrl}/api/bookings/${bookingId}/cancel`, 
         { status: 'Cancelled' }, 
         { headers }
       );
       
+      // OPTIMIZATION (Fix slow loading): Clear cache and update local state
       clearCacheKey('user_bookings'); 
-      await fetchBookings(); 
-      alert("Booking cancelled successfully!");
+      setBookings(prevBookings => prevBookings.map(b => 
+        (b._id === bookingId || b.id === bookingId) 
+          ? { ...b, status: 'Cancelled' } 
+          : b
+      ));
+
+      setLoading(false); // Stop loading immediately after local update
+
+      // ADDED: Toast notification for success
+      addToast('Success', `Booking #${bookingId.substring(0, 8)}... successfully cancelled.`, 'success');
+
     } catch (err: any) {
       setLoading(false);
       console.error("Error cancelling booking:", err);
-      alert(`Failed to cancel booking: ${err.response?.data?.message || err.message}`);
+      // ADDED: Toast notification for error
+      addToast('Error', `Failed to cancel booking: ${err.response?.data?.message || err.message}`, 'error');
     }
   };
 
-  const handleSaveEdit = async (updatedBookingData: Partial<Booking>) => {
-    try {
-      const bookingId = updatedBookingData._id;
-      if (!bookingId) throw new Error("Booking ID is missing for update.");
-      
-      await axios.put(
-        `${apiBaseUrl}/api/bookings/${bookingId}`, 
-        updatedBookingData, 
-        { headers }
-      );
-      
-      clearCacheKey('user_bookings'); 
-      await fetchBookings(); 
-      setIsModalOpen(false);
-      alert("Booking updated successfully!");
-    } catch (error: any) {
-      console.error("Error saving booking changes:", error);
-      alert(`Failed to update booking: ${error.response?.data?.message || error.message}`);
-      throw error;
-    }
+  // NEW: Handler to open the modal, replacing window.confirm
+  const handleOpenCancelModal = (bookingId: string) => {
+      setBookingToCancelId(bookingId);
+      setIsCancelModalOpen(true);
   };
-  
+
   // Filter for 'Active Bookings' (not cancelled and check-out is in the future)
   const activeBookings = bookings.filter(b => 
     b.room && 
@@ -252,6 +248,7 @@ const MyBookings: React.FC = () => {
                           <span className="font-medium">{formatDate(b.checkInDate)}</span>
                         </div>
                       </div>
+                      
                       {/* Check-out */}
                       <div className="flex items-center text-sm text-gray-600">
                         <Calendar className="w-4 h-4 mr-2 text-gray-500" />
@@ -260,6 +257,7 @@ const MyBookings: React.FC = () => {
                           <span className="font-medium">{formatDate(b.checkOutDate)}</span>
                         </div>
                       </div>
+                      
                       {/* Guests */}
                       <div className="flex items-center text-sm text-gray-600">
                         <Users className="w-4 h-4 mr-2 text-gray-500" />
@@ -279,15 +277,10 @@ const MyBookings: React.FC = () => {
                   {/* Right-side Actions */}
                   <div className="flex flex-col items-end justify-end h-full space-y-2">
                     <div className="flex space-x-3">
+                      {/* Removed Edit Button */}
                       <button
-                        onClick={() => handleEdit(b)}
-                        disabled={b.status === 'Cancelled' || b.status === 'Completed'}
-                        className="flex items-center text-sm font-medium text-orange-600 border border-orange-300 rounded-lg px-4 py-2 transition-colors hover:bg-orange-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        <Edit className="w-4 h-4 mr-1" /> Edit
-                      </button>
-                      <button
-                        onClick={() => handleCancel(b._id || b.id || '')} 
+                        // MODIFIED: Calls handler to open custom modal
+                        onClick={() => handleOpenCancelModal(b._id || b.id || '')} 
                         disabled={b.status === 'Cancelled' || b.status === 'Completed'}
                         className="flex items-center text-sm font-medium text-red-600 border border-red-300 rounded-lg px-4 py-2 transition-colors hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
@@ -302,14 +295,15 @@ const MyBookings: React.FC = () => {
         </div>
       </div>
 
-      {/* The Modal Component */}
-      {isModalOpen && currentBooking && (
-        <EditBookingModal
-          booking={currentBooking}
-          onClose={() => setIsModalOpen(false)}
-          onSave={handleSaveEdit}
-        />
-      )}
+      {/* NEW: Custom Confirmation Modal component rendered at the root of MyBookings */}
+      <ConfirmationModal
+        isOpen={isCancelModalOpen}
+        onClose={() => setIsCancelModalOpen(false)}
+        onConfirm={handleConfirmCancel} // Calls the main cancellation logic
+        title="Confirm Cancellation"
+        message="Are you sure you want to cancel this booking? This action cannot be undone."
+        confirmText="Yes, Cancel Booking"
+      />
     </div>
   );
 };

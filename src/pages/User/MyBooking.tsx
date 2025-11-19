@@ -7,10 +7,9 @@ import { fetchWithCache, clearCacheKey } from "../../utils/cache";
 import EditBookingModal from "../../components/EditBookingModal"; 
 import { useAuth } from '../../context/AuthContext';
 
-// Helper function to format date to MM/DD/YYYY (
+// Helper function to format date to MM/DD/YYYY
 const formatDate = (dateString: string | Date) => {
   if (!dateString) return 'N/A';
-  // Using 'en-US' locale for MM/DD/YYYY format
   return new Date(dateString).toLocaleDateString('en-US', {
     day: '2-digit',
     month: '2-digit',
@@ -18,8 +17,23 @@ const formatDate = (dateString: string | Date) => {
   }); 
 };
 
-// --- MyBookings Component ---
+// Status Styling Helper Function
+const getStatusClasses = (status: Booking['status']): string => {
+  switch (status) {
+    case 'Pending':
+      return 'bg-yellow-50 text-yellow-700 ring-yellow-600/20';
+    case 'Confirmed':
+      return 'bg-green-50 text-green-700 ring-green-600/20';
+    case 'Cancelled':
+      return 'bg-red-50 text-red-700 ring-red-600/20';
+    case 'Completed':
+      return 'bg-gray-50 text-gray-700 ring-gray-600/20';
+    default:
+      return 'bg-yellow-50 text-yellow-700 ring-yellow-600/20';
+  }
+};
 
+// --- MyBookings Component ---
 const MyBookings: React.FC = () => {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
@@ -27,43 +41,16 @@ const MyBookings: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentBooking, setCurrentBooking] = useState<Booking | null>(null);
 
-
   const { isLoggedIn } = useAuth();
 
   const token = localStorage.getItem("token");
   const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
-
-  // Navigate to sign in if no token
-  if (!isLoggedIn) { 
-  localStorage.removeItem("token"); 
-  return <Navigate to="/SignIn" replace />;
-}
-
   const headers: any = { 'Authorization': `Bearer ${token}` };
 
-  // ** NEW: Status Styling Helper Function **
-  const getStatusClasses = (status: Booking['status']): string => {
-    switch (status) {
-      case 'Pending':
-        // Yellow style for Pending
-        return 'bg-yellow-50 text-yellow-700 ring-yellow-600/20';
-      case 'Confirmed':
-        // Green style for Confirmed
-        return 'bg-green-50 text-green-700 ring-green-600/20';
-      case 'Cancelled':
-        // Red style for Cancelled
-        return 'bg-red-50 text-red-700 ring-red-600/20';
-      case 'Completed':
-        // Gray style for Completed
-        return 'bg-gray-50 text-gray-700 ring-gray-600/20';
-      default:
-        // Default to Pending style if status is missing or unrecognized
-        return 'bg-yellow-50 text-yellow-700 ring-yellow-600/20';
-    }
-  };
-  
+  // Fetch all bookings for logged-in user
   const fetchBookings = async () => {
     setLoading(true);
+    setError(null);
     try {
       if (!token) {
         setError("Please log in to view your bookings.");
@@ -89,8 +76,12 @@ const MyBookings: React.FC = () => {
       }
     } catch (err: any) {
       console.error("Error fetching bookings:", err);
-      // ... error handling logic remains the same ...
       setBookings([]);
+      setError(
+        err.response?.data?.message || 
+        err.message || 
+        "Failed to load bookings. Please try again later."
+      );
     } finally {
       setLoading(false);
     }
@@ -105,59 +96,58 @@ const MyBookings: React.FC = () => {
   }, [token]);
 
   // --- Handlers for Edit/Cancel ---
-  
   const handleEdit = (booking: Booking) => {
     if (booking.room) {
       setCurrentBooking(booking);
       setIsModalOpen(true);
     } else {
       console.error("Cannot edit: Booking is missing room details.");
+      alert("Cannot edit this booking: Room details are missing.");
     }
   };
 
   const handleCancel = async (bookingId: string) => {
     if (!window.confirm("Are you sure you want to cancel this booking? This action cannot be undone.")) {
-        return;
+      return;
     }
 
     try {
-        setLoading(true);
-        // Assuming your backend supports a PUT/PATCH to set the status to 'Cancelled'
-        await axios.patch(`${apiBaseUrl}/api/bookings/${bookingId}`, { status: 'Cancelled' }, { headers });
-        
-        // Invalidate the cache to ensure the list is refreshed
-        clearCacheKey('user_bookings'); 
-        
-        // Re-fetch bookings
-        await fetchBookings(); 
-        alert("Booking cancelled successfully!"); // User feedback
+      setLoading(true);
+      await axios.patch(
+        `${apiBaseUrl}/api/bookings/${bookingId}`, 
+        { status: 'Cancelled' }, 
+        { headers }
+      );
+      
+      clearCacheKey('user_bookings'); 
+      await fetchBookings(); 
+      alert("Booking cancelled successfully!");
     } catch (err: any) {
-        setLoading(false);
-        console.error("Error cancelling booking:", err);
-        alert(`Failed to cancel booking: ${err.response?.data?.message || err.message}`);
+      setLoading(false);
+      console.error("Error cancelling booking:", err);
+      alert(`Failed to cancel booking: ${err.response?.data?.message || err.message}`);
     }
   };
 
   const handleSaveEdit = async (updatedBookingData: Partial<Booking>) => {
     try {
-        const bookingId = updatedBookingData._id;
-        if (!bookingId) throw new Error("Booking ID is missing for update.");
-        
-        // ** API Call to Update Booking **
-        await axios.put(`${apiBaseUrl}/api/bookings/${bookingId}`, updatedBookingData, { headers });
-        
-        // Invalidate the cache
-        clearCacheKey('user_bookings'); 
-        
-        // Re-fetch bookings
-        await fetchBookings(); 
-        setIsModalOpen(false); // Close modal on success
-        alert("Booking updated successfully!"); // User feedback
-
+      const bookingId = updatedBookingData._id;
+      if (!bookingId) throw new Error("Booking ID is missing for update.");
+      
+      await axios.put(
+        `${apiBaseUrl}/api/bookings/${bookingId}`, 
+        updatedBookingData, 
+        { headers }
+      );
+      
+      clearCacheKey('user_bookings'); 
+      await fetchBookings(); 
+      setIsModalOpen(false);
+      alert("Booking updated successfully!");
     } catch (error: any) {
-        console.error("Error saving booking changes:", error);
-        alert(`Failed to update booking: ${error.response?.data?.message || error.message}`);
-        throw error; // Re-throw to handle state changes in modal (e.g., stopping the loading spinner)
+      console.error("Error saving booking changes:", error);
+      alert(`Failed to update booking: ${error.response?.data?.message || error.message}`);
+      throw error;
     }
   };
   
@@ -167,6 +157,12 @@ const MyBookings: React.FC = () => {
     b.status !== 'Cancelled' && 
     new Date(b.checkOutDate) >= new Date()
   );
+
+  // Navigate to sign in if no token - MOVED AFTER ALL HOOKS
+  if (!isLoggedIn) { 
+    localStorage.removeItem("token"); 
+    return <Navigate to="/SignIn" replace />;
+  }
 
   // Loading state
   if (loading) {
@@ -180,8 +176,6 @@ const MyBookings: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Global Navigation Bar was removed from here as requested */}
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         {/* Page Header */}
         <header className="pb-8">
@@ -203,7 +197,7 @@ const MyBookings: React.FC = () => {
         <div className="space-y-6">
           {activeBookings.map((b) => {
             const room = b.room;
-            const displayPrice = `$${b.totalPrice?.toFixed(0) || '---'}`; 
+            const displayPrice = `₱${b.totalPrice?.toFixed(0) || '---'}`; 
 
             return (
               <div 
@@ -213,7 +207,6 @@ const MyBookings: React.FC = () => {
                 {/* Image Section */}
                 <div className="w-48 h-48 flex-shrink-0">
                   <img
-                    // Check if room.photos exists and has at least one element
                     src={room.photos?.[0]?.url || 'https://via.placeholder.com/200x200?text=Room+Image'} 
                     alt={room.title}
                     className="w-full h-full object-cover"
@@ -229,7 +222,7 @@ const MyBookings: React.FC = () => {
                         {room.title}
                       </h3>
                       
-                      {/* ** UPDATED: Dynamic Status Tag ** */}
+                      {/* Dynamic Status Tag */}
                       {b.status && (
                         <span className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ${getStatusClasses(b.status)}`}>
                           {b.status}
@@ -243,51 +236,52 @@ const MyBookings: React.FC = () => {
                       <div className="flex items-center text-sm text-gray-600">
                         <Calendar className="w-4 h-4 mr-2 text-gray-500" />
                         <div>
-                            <p className="text-xs">Check-in</p>
-                            <span className="font-medium">{formatDate(b.checkInDate)}</span>
+                          <p className="text-xs">Check-in</p>
+                          <span className="font-medium">{formatDate(b.checkInDate)}</span>
                         </div>
                       </div>
                       {/* Check-out */}
                       <div className="flex items-center text-sm text-gray-600">
                         <Calendar className="w-4 h-4 mr-2 text-gray-500" />
                         <div>
-                            <p className="text-xs">Check-out</p>
-                            <span className="font-medium">{formatDate(b.checkOutDate)}</span>
+                          <p className="text-xs">Check-out</p>
+                          <span className="font-medium">{formatDate(b.checkOutDate)}</span>
                         </div>
                       </div>
-                      {/* Guests - Using totalGuests */}
+                      {/* Guests */}
                       <div className="flex items-center text-sm text-gray-600">
                         <Users className="w-4 h-4 mr-2 text-gray-500" />
                         <div>
-                            <p className="text-xs">Guests</p>
-                            <span className="font-medium">{b.totalGuests} guests</span>
+                          <p className="text-xs">Guests</p>
+                          <span className="font-medium">{b.totalGuests} guests</span>
                         </div>
                       </div>
                     </div>
 
-                    {/* Price (at the bottom left) */}
+                    {/* Price */}
                     <div className="text-2xl font-bold text-gray-900 mt-2">
                       {displayPrice}
                     </div>
                   </div>
 
-                  {/* Right-side Actions and Info */}
+                  {/* Right-side Actions */}
                   <div className="flex flex-col items-end justify-end h-full space-y-2">
-                      {/* Actions */}
-                      <div className="flex space-x-3">
-                        <button
-                            onClick={() => handleEdit(b)}
-                            className="flex items-center text-sm font-medium text-orange-600 border border-orange-300 rounded-lg px-4 py-2 transition-colors hover:bg-orange-50"
-                        >
-                            <Edit className="w-4 h-4 mr-1" /> Edit
-                        </button>
-                        <button
-                            onClick={() => handleCancel(b._id || b.id || '')} 
-                            className="flex items-center text-sm font-medium text-red-600 border border-red-300 rounded-lg px-4 py-2 transition-colors hover:bg-red-50"
-                        >
-                            <X className="w-4 h-4 mr-1" /> Cancel
-                        </button>
-                      </div>
+                    <div className="flex space-x-3">
+                      <button
+                        onClick={() => handleEdit(b)}
+                        disabled={b.status === 'Cancelled' || b.status === 'Completed'}
+                        className="flex items-center text-sm font-medium text-orange-600 border border-orange-300 rounded-lg px-4 py-2 transition-colors hover:bg-orange-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        <Edit className="w-4 h-4 mr-1" /> Edit
+                      </button>
+                      <button
+                        onClick={() => handleCancel(b._id || b.id || '')} 
+                        disabled={b.status === 'Cancelled' || b.status === 'Completed'}
+                        className="flex items-center text-sm font-medium text-red-600 border border-red-300 rounded-lg px-4 py-2 transition-colors hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        <X className="w-4 h-4 mr-1" /> Cancel
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>

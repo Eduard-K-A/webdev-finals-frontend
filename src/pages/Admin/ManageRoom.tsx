@@ -413,13 +413,17 @@ const ManageRoom: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [roomToEdit, setRoomToEdit] = useState<Room | null>(null);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
+    const [authChecked, setAuthChecked] = useState(false);
 
-    // --- Redirect/Auth Check ---
     useEffect(() => {
-        if (!isLoggedIn || !isAdmin) {
+        setAuthChecked(true);
+    }, [isLoggedIn, isAdmin]);
+
+    useEffect(() => {
+        if (authChecked && (!isLoggedIn || !isAdmin)) {
             navigate('/');
         }
-    }, [isLoggedIn, isAdmin, navigate]);
+    }, [isLoggedIn, isAdmin, navigate, authChecked]);
 
     // --- Data Fetching ---
     const fetchRooms = async () => {
@@ -508,6 +512,14 @@ const ManageRoom: React.FC = () => {
     // Tailwind classes using CSS variables
     const goldText = "text-[var(--color-brand-gold)]";
     const navyText = "text-[var(--color-brand-navy)]";
+    if (!authChecked) {
+        return (
+            <div className="flex items-center justify-center h-screen animate-pulse text-gray-500 text-xl">
+                <span className="loader mr-2" />
+                Loading room management...
+            </div>
+        );
+    }
     return (
         <div className="min-h-screen bg-gray-50 p-6 md:p-10 font-sans">
             <div className="max-w-7xl mx-auto">

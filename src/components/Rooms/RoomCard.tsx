@@ -12,6 +12,7 @@ const AmenityIcon = ({ name }: { name: string }) => {
   const iconMap: { [key: string]: React.ElementType } = {
     // Basic/Common
     wifi: Wifi,
+    "free wifi": Wifi,
     internet: Wifi,
     tv: Tv,
     television: Tv,
@@ -25,9 +26,13 @@ const AmenityIcon = ({ name }: { name: string }) => {
     // Hotel Services
     "coffee maker": Coffee,
     parking: Car,
+    "free parking": Car,
     garage: Car,
     gym: Dumbbell,
     fitness: Dumbbell,
+    "Fitness Centre": Dumbbell,
+    "outdoor swimming pool": Sun,
+    "indoor swimming pool": Sun,
     pool: Sun, 
     balcony: Sun,
     view: Sun,

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Star } from 'lucide-react'; 
 import type { Room } from "../../types";
 import { fetchWithCache } from "../../utils/cache";
@@ -10,6 +10,7 @@ const FeaturedHotels: React.FC<FeaturedHotelsProps> = () => {
     const [hotelsList, setHotelsList] = useState<Room[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const controller = new AbortController();
@@ -28,7 +29,7 @@ const FeaturedHotels: React.FC<FeaturedHotelsProps> = () => {
 
                         return (data.rooms || []).slice(0, 3).map((room: any) => ({
                             thumbnailPic: room.thumbnailPic || room.photos?.[0] || null,
-                            id: room.id || room._id,
+                            _id: room._id,
                             title: room.title || 'Room',
                             city: room.city || '',
                             pricePerNight: room.pricePerNight || 0,
@@ -88,12 +89,10 @@ const FeaturedHotels: React.FC<FeaturedHotelsProps> = () => {
                     ) : error ? (
                         <div className="col-span-3 text-center text-red-500">{error}</div>
                     ) : hotelsList.map((hotel) => {
-                        const { rating, reviewCount } = getMockRating(hotel.id);
-                        
+                        const { rating, reviewCount } = getMockRating(hotel._id ?? "");
                         return (
-                            <Link
-                                key={hotel.id}
-                                to={`/Hotels/${hotel.id}`} 
+                            <div
+                                key={hotel._id}
                                 className="bg-white overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-shadow duration-300 cursor-pointer group block"
                             >
                                 <div className="relative h-64 overflow-hidden">
@@ -102,40 +101,37 @@ const FeaturedHotels: React.FC<FeaturedHotelsProps> = () => {
                                         alt={hotel.title}
                                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                                     />
-                                    
                                     <div className="absolute top-4 right-4 bg-[#d4a574] text-[#0a1e3d] text-sm px-3 py-1 rounded-full font-semibold">
                                         ${hotel.pricePerNight}/night
                                     </div>
                                 </div>
-                                
                                 <div className="p-6">
                                     <h3 className="text-xl text-[#0a1e3d] mb-2 font-semibold">
                                         {hotel.title}
                                     </h3>
-
                                     <div className="flex items-center gap-2 mb-3 text-sm">
                                         <div className="flex items-center">
                                             <Star className="h-4 w-4 text-[#d4a574] fill-[#d4a574]" />
                                             <span className="ml-1 text-[#0a1e3d] font-medium">{rating.toFixed(1)}</span>
                                         </div>
-                                        
                                         <span className="text-gray-500">
                                             ({reviewCount} reviews)
                                         </span>
                                     </div>
-                                    
                                     <p className="text-gray-600 mb-6 line-clamp-2 text-base">
                                         {hotel.city || 'Featured room'}: Experience luxury in this elegant room, featuring modern amenities and stunning views, perfect for a restful escape.
                                     </p>
-                                    
                                     <div
                                         className="w-full text-center py-3 bg-[#0a1e3d] hover:bg-[#0a1e3d]/90 text-white rounded-xl text-base font-semibold transition-colors"
+                                        onClick={() => navigate(`/Hotels/${hotel._id}`)}
+                                        role="button"
+                                        tabIndex={0}
+                                        style={{ cursor: 'pointer' }}
                                     >
-                                        
                                         View Details
                                     </div>
                                 </div>
-                            </Link>
+                            </div>
                         );
                     })}
                 </div>

@@ -57,7 +57,7 @@ export interface Room {
 
 export interface RoomCardProps {
   room: Room;
-  onViewDetails: () => void;
+  onViewDetails?: () => void;
   onBookNow?: () => void;
 }
 

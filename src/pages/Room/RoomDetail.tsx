@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
+import { getCached, setCached } from '../../utils/cache';
 // Import all necessary icons
 import {
     Users, Star, Wifi, Tv, Coffee, Check, Bed, Car, Dumbbell, Sun, Utensils,
@@ -95,12 +96,24 @@ const RoomDetail: React.FC = () => {
         const fetchRoom = async () => {
             setLoading(true);
             try {
+                // Try cache first
+                const cacheKey = `room_${id}`;
+                const cachedRoom = getCached<RoomType>(cacheKey);
+                if (cachedRoom && typeof cachedRoom === 'object' && 'title' in cachedRoom && 'pricePerNight' in cachedRoom) {
+                    setRoom({ ...cachedRoom, isAvailable: (cachedRoom as any).isAvailable ?? true });
+                    setLoading(false);
+                    return;
+                }
+
                 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+                console.log('Fetching room with ID:', id); // Debug log
                 const res = await axios.get(`${apiBaseUrl}/api/rooms/${id}`);
                 const roomData = res.data.room || res.data;
-                // Ensure room has isAvailable property for initial state if API misses it
-                setRoom({ ...roomData, isAvailable: roomData.isAvailable ?? true }); 
+                setCached(cacheKey, roomData, 5 * 60 * 1000); // Cache for 5 minutes
+                console.log('Room data received:', roomData); // Debug log
+                setRoom({ ...roomData, isAvailable: roomData.isAvailable ?? true });
             } catch (err: any) {
+                console.error('Error fetching room:', err); // Debug log
                 setError(err.response?.data?.message || err.message || 'Something went wrong');
             } finally {
                 setLoading(false);

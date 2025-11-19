@@ -1,4 +1,5 @@
 import React from "react";
+import Footer from "../../components/Dashboard/Footer";
 import { Star, Wifi, Coffee, Users, Tv } from "lucide-react";
 
 const AboutUs: React.FC = () => {
@@ -109,6 +110,7 @@ const AboutUs: React.FC = () => {
           ))}
         </div>
       </section>
+      <Footer/>
     </div>
   );
 };

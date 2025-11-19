@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Star } from 'lucide-react'; 
 import type { Room } from "../../types";
@@ -10,6 +10,8 @@ const FeaturedHotels: React.FC<FeaturedHotelsProps> = () => {
     const [hotelsList, setHotelsList] = useState<Room[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const roomsPerPage = 10;
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -67,6 +69,33 @@ const FeaturedHotels: React.FC<FeaturedHotelsProps> = () => {
         console.log("Navigating to all rooms page");
     };
 
+    const paginatedHotels = useMemo(() => {
+        const startIndex = (currentPage - 1) * roomsPerPage;
+        return hotelsList.slice(startIndex, startIndex + roomsPerPage);
+    }, [currentPage, hotelsList]);
+
+    const totalPages = Math.ceil(hotelsList.length / roomsPerPage);
+
+    const handleNextPage = () => {
+        if (currentPage < totalPages) {
+            setCurrentPage((prev) => prev + 1);
+        }
+    };
+
+    const handlePrevPage = () => {
+        if (currentPage > 1) {
+            setCurrentPage((prev) => prev - 1);
+        }
+    };
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setCurrentPage((prev) => (prev % totalPages) + 1);
+        }, 5000); // Auto-scroll every 5 seconds
+
+        return () => clearInterval(interval);
+    }, [totalPages]);
+
     return (
 
         <section className="py-16 bg-white">
@@ -88,7 +117,7 @@ const FeaturedHotels: React.FC<FeaturedHotelsProps> = () => {
                         <div className="col-span-3 text-center text-gray-500">Loading...</div>
                     ) : error ? (
                         <div className="col-span-3 text-center text-red-500">{error}</div>
-                    ) : hotelsList.map((hotel) => {
+                    ) : paginatedHotels.map((hotel) => {
                         const { rating, reviewCount } = getMockRating(hotel._id ?? "");
                         return (
                             <div
@@ -134,6 +163,25 @@ const FeaturedHotels: React.FC<FeaturedHotelsProps> = () => {
                             </div>
                         );
                     })}
+                </div>
+
+                {/* Pagination Controls */}
+                <div className="flex justify-center mt-4">
+                    <button
+                        onClick={handlePrevPage}
+                        disabled={currentPage === 1}
+                        className="px-4 py-2 mx-1 bg-gray-200 rounded disabled:opacity-50"
+                    >
+                        Previous
+                    </button>
+                    <span className="px-4 py-2">Page {currentPage} of {totalPages}</span>
+                    <button
+                        onClick={handleNextPage}
+                        disabled={currentPage === totalPages}
+                        className="px-4 py-2 mx-1 bg-gray-200 rounded disabled:opacity-50"
+                    >
+                        Next
+                    </button>
                 </div>
 
                 {/* View All Button */}

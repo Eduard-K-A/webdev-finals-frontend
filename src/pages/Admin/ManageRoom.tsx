@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
 import type { Room, Photo } from '../../types';
-import {ChevronLeft, ChevronRight, Edit, Trash2, Eye, Plus, Search, Bed, DollarSign, ListOrdered, CheckCircle, XCircle } from 'lucide-react';
+import { Edit, Trash2, Plus, Search, Bed, DollarSign, ListOrdered, CheckCircle, XCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { fetchWithCache, clearCacheKey } from '../../utils/cache';

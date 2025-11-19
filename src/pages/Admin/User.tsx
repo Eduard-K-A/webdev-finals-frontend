@@ -3,7 +3,6 @@ import axios from 'axios';
 import type { UserType } from '../../types';
 import { fetchWithCache, clearCacheKey } from '../../utils/cache';
 import { Trash2 } from 'lucide-react';
-import { useAuth } from '../../context/AuthContext'; // import useAuth
 
 type SortOrder = 'asc' | 'desc';
 

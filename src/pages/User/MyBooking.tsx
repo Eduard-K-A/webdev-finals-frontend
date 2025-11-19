@@ -16,6 +16,7 @@ const MyBookings: React.FC = () => {
   if (!token) {
     return <Navigate to="/Signin" replace />;
   }
+
   // Fetch all bookings for logged-in user
   useEffect(() => {
     const fetchBookings = async () => {
@@ -122,11 +123,15 @@ const MyBookings: React.FC = () => {
                 <div className="mt-3 space-y-2 text-[#362f22]/80">
                   <p className="flex items-center gap-2">
                     <Calendar className="w-5 h-5" /> Check-in:{" "}
-                    <span className="font-medium">{new Date(b.checkInDate).toLocaleDateString()}</span>
+                    <span className="font-medium">
+                      {new Date(b.checkInDate).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
+                    </span>
                   </p>
                   <p className="flex items-center gap-2">
                     <Clock className="w-5 h-5" /> Check-out:{" "}
-                    <span className="font-medium">{new Date(b.checkOutDate).toLocaleDateString()}</span>
+                    <span className="font-medium">
+                      {new Date(b.checkOutDate).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
+                    </span>
                   </p>
                   <p className="flex items-center gap-2">
                     <MapPin className="w-5 h-5" /> Room Type:{" "}

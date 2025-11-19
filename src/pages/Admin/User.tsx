@@ -3,6 +3,7 @@ import axios from 'axios';
 import type { UserType } from '../../types';
 import { fetchWithCache, clearCacheKey } from '../../utils/cache';
 import { Trash2 } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext'; // import useAuth
 
 type SortOrder = 'asc' | 'desc';
 
@@ -18,6 +19,8 @@ const User: React.FC = () => {
     email: '',
     password: '',
   });
+
+  const { user: currentUser } = useAuth(); // get current user if needed
 
   const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
 
@@ -101,8 +104,12 @@ const User: React.FC = () => {
   }, [users, sortKey, sortOrder]);
 
   // --- Separate admins and normal users ---
-  const admins = sortedUsers.filter(u => u.role === 'admin');
-  const normalUsers = sortedUsers.filter(u => u.role !== 'admin');
+  const admins = sortedUsers.filter(u => 
+    u.role === 'admin' || (Array.isArray(u.roles) && u.roles.includes('admin'))
+  );
+  const normalUsers = sortedUsers.filter(u => 
+    u.role !== 'admin' && !(Array.isArray(u.roles) && u.roles.includes('admin'))
+  );
 
   // --- Tailwind classes ---
   const inputClass =
@@ -212,9 +219,9 @@ const User: React.FC = () => {
                     <td className="px-6 py-4 space-x-2 text-sm">
                       <button
                         onClick={() => handleDeleteUser(u._id)}
-                        className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
+                        className="p-2 text-gray-500 hover:text-red-600 transition duration-150 rounded-full"
                       >
-                        Delete
+                        <Trash2 size={18} />
                       </button>
                     </td>
                   </tr>

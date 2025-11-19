@@ -209,67 +209,99 @@ const RoomDetail: React.FC = () => {
             return;
         }
 
-        if (!validateBookingDates()) {
-            return;
-        }
+		if (!validateBookingDates()) {
+			return;
+		}
 
-        if (numberOfNights === 0 || hasConflict || !room.isAvailable) {
-            console.error("Booking conflict, invalid dates, or room unavailable.");
-            // 4. REPLACE ALERT FOR CONFLICT/UNAVAILABLE
-            addToast('Unavailable', 'This room is unavailable for the selected dates.', 'error');
-            return;
-        }
+		// Check if user is logged in and token exists
+		const token = localStorage.getItem('token');
+		if (!isLoggedIn || !token) {
+			addToast('Login Required', 'You must be logged in to make a booking.', 'error');
+			return;
+		}
 
-        try {
-            const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
-            const bookingData = {
-                room: room._id,
-                checkInDate,
-                checkOutDate,
-                totalGuests: guests,
-                totalPrice: finalPrice,
-            };
+		if (numberOfNights === 0 || hasConflict || !room.isAvailable) {
+			console.error("Booking conflict, invalid dates, or room unavailable.");
+			setBookingError('This room is unavailable for the selected dates. Please choose different dates.');
+			addToast('Unavailable', 'This room is unavailable for the selected dates.', 'error');
+			return;
+		}
 
-            const response = await axios.post(`${apiBaseUrl}/api/bookings`, bookingData, {
-                headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-            });
+		// Clear any previous booking error if proceeding
+		setBookingError('');
+		try {
+			const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+			const bookingData = {
+				room: room._id,
+				checkInDate,
+				checkOutDate,
+				totalGuests: guests,
+				totalPrice: finalPrice,
+			};
 
-            console.log('Booking successful:', response.data);
-            
-            const successMessage = `Confirmed for ${numberOfNights} night(s) at $${finalPrice.toFixed(2)}.`;
-            addToast('Booking Confirmed! 🎉', successMessage, 'success');
-            
-            setBookedRanges((prev) => [...prev, { start: checkInDate, end: checkOutDate }]);
-            setCheckInDate('');
-            setCheckOutDate('');
-            setGuests(1);
+			const response = await axios.post(`${apiBaseUrl}/api/bookings`, bookingData, {
+				headers: { Authorization: `Bearer ${token}` },
+			});
 
-            // Dispatch a custom event to notify MyBookings to refresh
-            window.dispatchEvent(new Event('bookingUpdated'));
-        } catch (error: any) {
-            console.error('Error creating booking:', error.response?.data || error.message);
-            // 6. REPLACE FAILURE ALERT WITH TOAST
-            addToast('Booking Failed', error.response?.data?.message || 'Failed to create booking. Please try again.', 'error');
-        }
+			console.log('Booking successful:', response.data);
+			const successMessage = `Confirmed for ${numberOfNights} night(s) at $${finalPrice.toFixed(2)}.`;
+			addToast('Booking Confirmed! 🎉', successMessage, 'success');
+			setBookedRanges((prev) => [...prev, { start: checkInDate, end: checkOutDate }]);
+			setCheckInDate('');
+			setCheckOutDate('');
+			setGuests(1);
+
+			// Dispatch a custom event to notify MyBookings to refresh
+			window.dispatchEvent(new Event('bookingUpdated'));
+		} catch (error: any) {
+			console.error('Error creating booking:', error.response?.data || error.message);
+			let friendlyMessage = 'Failed to create booking. Please try again.';
+			if (error.response?.data?.error) {
+				const err = error.response.data.error.toLowerCase();
+				if (err.includes('conflict') || err.includes('unavailable')) {
+					friendlyMessage = 'The room is not available for the selected dates. Please choose different dates.';
+				} else if (err.includes('token')) {
+					friendlyMessage = 'Your session has expired or you are not logged in. Please log in and try again.';
+				} else if (err.includes('validation')) {
+					friendlyMessage = 'Some booking details are invalid. Please check your dates and guest information.';
+				} else {
+					friendlyMessage = error.response.data.error;
+				}
+			} else if (error.response?.data?.message) {
+				friendlyMessage = error.response.data.message;
+			}
+			addToast('Booking Failed', friendlyMessage, 'error');
+			setBookingError(friendlyMessage);
+		}
     };
 
 
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center h-screen animate-pulse text-gray-500 text-xl">
-                Loading Room Details...
-            </div>
-        );
-    }
+	// --- Inline error message for unavailable dates ---
+	const [bookingError, setBookingError] = useState<string>('');
 
-    if (error || !room) {
-        return (
-            <div className="flex flex-col items-center justify-center h-screen text-center">
-                <h2 className="text-3xl font-bold text-red-600 mb-2">Error!</h2>
-                <p className="text-gray-500 text-lg">{error || 'Room not found'}</p>
-            </div>
-        );
-    }
+	if (loading) {
+	return (
+		<>
+			{/* ...existing code for room details and booking form... */}
+			{/* Place this below the date pickers in your booking form UI */}
+			{bookingError && (
+				<div className="text-red-600 text-sm mt-2 mb-2 font-semibold" data-testid="booking-error-msg">
+					{bookingError}
+				</div>
+			)}
+			{/* ...existing code for the rest of the component... */}
+		</>
+	);
+}
+
+if (error || !room) {
+	return (
+		<div className="flex flex-col items-center justify-center h-screen text-center">
+			<h2 className="text-3xl font-bold text-red-600 mb-2">Error!</h2>
+			<p className="text-gray-500 text-lg">{error || 'Room not found'}</p>
+		</div>
+	);
+}
     
     const hasValidDates = numberOfNights > 0; // Check validity based on calculated nights
     

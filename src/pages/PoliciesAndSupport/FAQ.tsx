@@ -1,6 +1,9 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const FAQ: React.FC = () => {
+  const navigate = useNavigate();
+
   const faqs = [
     { q: "What are the check-in and check-out times?", a: "Check-in starts at 2:00 PM, and check-out is by 12:00 PM. Early check-in or late check-out may be available upon request, subject to availability." },
     { q: "Do you offer free Wi-Fi?", a: "Yes! Complimentary high-speed Wi-Fi is available throughout the hotel, including rooms and common areas." },
@@ -19,42 +22,52 @@ const FAQ: React.FC = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-8">
-      <h2 className="text-3xl font-bold mb-6 text-center text-[var(--color-brand-navy)]">
-        Frequently Asked Questions
-      </h2>
-      <div className="space-y-4">
-        {faqs.map((faq, idx) => {
-          const isOpen = openIndex === idx;
+    <div className="relative">
+      
+      <button
+        onClick={() => navigate("/")}
+        className="fixed top-4 left-4 bg-white border-2 border-[#d4a574] text-[#0a1e3d] hover:bg-[#d4a574] hover:text-white rounded-full p-3 shadow-md transition-colors duration-200 z-50 mt-20"
+      >
+        Back
+      </button>
 
-          return (
-            <div key={idx} className="border p-4 rounded-lg shadow-sm">
-              <button
-                onClick={() => toggleFAQ(idx)}
-                className="w-full text-left flex justify-between items-center font-semibold text-lg"
-              >
-                {faq.q}
-                {/* Arrow rotates smoothly */}
-                <span
-                  className={`ml-2 transition-transform duration-300 ${
-                    isOpen ? "rotate-180" : "rotate-0"
-                  }`}
+      <div className="max-w-4xl mx-auto p-8">
+        <h2 className="text-3xl font-bold mb-6 text-center text-[var(--color-brand-navy)]">
+          Frequently Asked Questions
+        </h2>
+        <div className="space-y-4">
+          {faqs.map((faq, idx) => {
+            const isOpen = openIndex === idx;
+
+            return (
+              <div key={idx} className="border p-4 rounded-lg shadow-sm">
+                <button
+                  onClick={() => toggleFAQ(idx)}
+                  className="w-full text-left flex justify-between items-center font-semibold text-lg"
                 >
-                  ▲
-                </span>
-              </button>
+                  {faq.q}
+                  {/* Arrow rotates smoothly */}
+                  <span
+                    className={`ml-2 transition-transform duration-300 ${
+                      isOpen ? "rotate-180" : "rotate-0"
+                    }`}
+                  >
+                    ▲
+                  </span>
+                </button>
 
-              <div
-                className="overflow-hidden transition-[max-height] duration-500 ease-out"
-                style={{
-                  maxHeight: isOpen ? 1000 : 0,
-                }}
-              >
-                <p className="mt-2 text-gray-700">{faq.a}</p>
+                <div
+                  className="overflow-hidden transition-[max-height] duration-500 ease-out"
+                  style={{
+                    maxHeight: isOpen ? 1000 : 0,
+                  }}
+                >
+                  <p className="mt-2 text-gray-700">{faq.a}</p>
+                </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
     </div>
   );

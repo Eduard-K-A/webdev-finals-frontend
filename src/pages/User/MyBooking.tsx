@@ -116,8 +116,8 @@ const MyBookings: React.FC = () => {
 
     try {
       setLoading(true);
-      await axios.patch(
-        `${apiBaseUrl}/api/bookings/${bookingId}`, 
+      await axios.put(
+        `${apiBaseUrl}/api/bookings/${bookingId}/cancel`, 
         { status: 'Cancelled' }, 
         { headers }
       );

@@ -47,6 +47,9 @@ const MyBookings: React.FC = () => {
   const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
   const headers: any = { 'Authorization': `Bearer ${token}` };
 
+  // Check if auth is still loading
+  const isAuthenticating = token && !isLoggedIn;
+
   // Fetch all bookings for logged-in user
   const fetchBookings = async () => {
     setLoading(true);
@@ -159,9 +162,18 @@ const MyBookings: React.FC = () => {
   );
 
   // Navigate to sign in if no token - MOVED AFTER ALL HOOKS
-  if (!isLoggedIn) { 
-    localStorage.removeItem("token"); 
+  if (!token && !isLoggedIn) { 
     return <Navigate to="/SignIn" replace />;
+  }
+
+  // Show loading while authenticating
+  if (isAuthenticating) {
+    return (
+      <div className="flex items-center justify-center h-screen animate-pulse text-gray-500 text-xl">
+        <Loader2 className="animate-spin w-10 h-10 mr-2" />
+        Authenticating...
+      </div>
+    );
   }
 
   // Loading state

@@ -1,5 +1,6 @@
 import React from "react";
 import { useLocation, Link } from "react-router-dom";
+import Footer from "../../components/Dashboard/Footer";
 
 const Policies: React.FC = () => {
   const location = useLocation();
@@ -7,6 +8,8 @@ const Policies: React.FC = () => {
   const fromHome = location.state?.fromHome;
 
   return (
+
+    <>
     <div className="min-h-screen bg-white flex flex-col items-center justify-center px-6 py-12 text-center">
       <div className="max-w-3xl bg-white shadow-lg border border-[#d4a574]/40 rounded-2xl p-10 animate-slide-up-fade-in">
         {/* --- Heading --- */}
@@ -55,7 +58,11 @@ const Policies: React.FC = () => {
           </Link>
         )}
       </div>
+
     </div>
+    <Footer />
+    </>
+
   );
 };
 

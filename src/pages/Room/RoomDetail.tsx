@@ -76,10 +76,7 @@ const RoomDetail: React.FC = () => {
     const [checkOutDate, setCheckOutDate] = useState('');
     const [guests, setGuests] = useState(1);
     
-    const [bookedRanges, setBookedRanges] = useState<BookingRange[]>([
-        // Initial simulated existing booking (e.g., booked for a week next month)
-        { start: '2025-12-10', end: '2025-12-15' } 
-    ]);
+    const [bookedRanges, setBookedRanges] = useState<BookingRange[]>([]);
 
     // Use the mocked useAuth()
     const { isLoggedIn } = useAuth(); 
@@ -93,7 +90,7 @@ const RoomDetail: React.FC = () => {
     useEffect(() => {
         if (!id) return;
 
-        const fetchRoom = async () => {
+        const fetchRoomAndBookings = async () => {
             setLoading(true);
             try {
                 // Try cache first
@@ -101,26 +98,33 @@ const RoomDetail: React.FC = () => {
                 const cachedRoom = getCached<RoomType>(cacheKey);
                 if (cachedRoom && typeof cachedRoom === 'object' && 'title' in cachedRoom && 'pricePerNight' in cachedRoom) {
                     setRoom({ ...cachedRoom, isAvailable: (cachedRoom as any).isAvailable ?? true });
-                    setLoading(false);
-                    return;
+                } else {
+                    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+                    const res = await axios.get(`${apiBaseUrl}/api/rooms/${id}`);
+                    const roomData = res.data.room || res.data;
+                    setCached(cacheKey, roomData, 5 * 60 * 1000); // Cache for 5 minutes
+                    setRoom({ ...roomData, isAvailable: roomData.isAvailable ?? true });
                 }
 
+                // Fetch bookings for this room
                 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
-                console.log('Fetching room with ID:', id); // Debug log
-                const res = await axios.get(`${apiBaseUrl}/api/rooms/${id}`);
-                const roomData = res.data.room || res.data;
-                setCached(cacheKey, roomData, 5 * 60 * 1000); // Cache for 5 minutes
-                console.log('Room data received:', roomData); // Debug log
-                setRoom({ ...roomData, isAvailable: roomData.isAvailable ?? true });
+                const bookingsRes = await axios.get(`${apiBaseUrl}/api/bookings/all`); // admin endpoint, but you may want a /api/bookings/room/:id endpoint for public use
+                const allBookings = bookingsRes.data;
+                // Filter bookings for this room and not cancelled
+                const roomBookings = Array.isArray(allBookings)
+                    ? allBookings.filter((b) => b.room && (b.room._id === id || b.room.id === id) && b.status !== 'Cancelled')
+                    : [];
+                const ranges = roomBookings.map((b) => ({ start: b.checkInDate, end: b.checkOutDate }));
+                setBookedRanges(ranges);
             } catch (err: any) {
-                console.error('Error fetching room:', err); // Debug log
+                console.error('Error fetching room or bookings:', err);
                 setError(err.response?.data?.message || err.message || 'Something went wrong');
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchRoom();
+        fetchRoomAndBookings();
     }, [id]);
 
     // Carousel navigation functions

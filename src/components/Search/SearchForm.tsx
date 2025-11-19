@@ -14,20 +14,37 @@ const SearchForm: React.FC = () => {
     const [checkOut, setCheckOut] = useState<string>('');
     const [options, setOptions] = useState<SearchOptions>({ adults: 1, children: 0, rooms: 1 });
 
+    const [error, setError] = useState<string | null>(null);
+
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
-        
+        setError(null);
+
         // Basic validation
         if (!destination || !checkIn || !checkOut) {
-            alert("Please select a destination and dates.");
+            setError("Please select a destination and dates.");
+            return;
+        }
+
+        const today = new Date();
+        today.setHours(0,0,0,0);
+        const checkInDate = new Date(checkIn);
+        const checkOutDate = new Date(checkOut);
+
+        if (checkInDate < today) {
+            setError("Check-in date cannot be in the past.");
+            return;
+        }
+        if (checkOutDate <= checkInDate) {
+            setError("Check-out date must be after check-in date.");
             return;
         }
 
         // 1. Update Global State with Date objects
         updateSearchParams({ 
             destination, 
-            checkInDate: new Date(checkIn), 
-            checkOutDate: new Date(checkOut), 
+            checkInDate, 
+            checkOutDate, 
             options 
         });
         navigate('/hotels/search'); 
@@ -39,6 +56,12 @@ const SearchForm: React.FC = () => {
         style={{ animationDelay: "0.3s" }}
         onSubmit={handleSearch}
         >
+            {/* Error Message */}
+            {error && (
+                <div className="w-full mb-2 text-center text-red-600 bg-red-100 border border-red-200 rounded p-2">
+                    {error}
+                </div>
+            )}
             {/* destination Input */}
             <div className="flex-1 w-full md:w-auto">
                 <input 

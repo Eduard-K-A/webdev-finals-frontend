@@ -16,6 +16,7 @@ const FeaturedHotels: React.FC<FeaturedHotelsProps> = () => {
 
     useEffect(() => {
         const controller = new AbortController();
+
         const fetchHotels = async () => {
             setLoading(true);
             setError(null);
@@ -29,16 +30,18 @@ const FeaturedHotels: React.FC<FeaturedHotelsProps> = () => {
                         if (!res.ok) throw new Error(`HTTP ${res.status}`);
                         const data = await res.json();
 
+                        // Map rooms and keep minimal info for featured display
                         return (data.rooms || []).slice(0, 3).map((room: any) => ({
-                            thumbnailPic: room.thumbnailPic || room.photos?.[0] || null,
                             _id: room._id,
                             title: room.title || 'Room',
                             city: room.city || '',
                             pricePerNight: room.pricePerNight || 0,
-                            imagePlaceholder: ''
+                            thumbnailPic: room.thumbnailPic || room.photos?.[0] || null,
+                            rating: room.rating ?? null,           // Nullable number
+                            reviewCount: room.reviewCount ?? null, // Nullable number
                         }));
                     },
-                    5 * 60 * 1000 // 5 minute TTL for featured hotels
+                    5 * 60 * 1000 // 5-minute cache TTL
                 );
 
                 setHotelsList(list);
@@ -54,28 +57,14 @@ const FeaturedHotels: React.FC<FeaturedHotelsProps> = () => {
         fetchHotels();
         return () => controller.abort();
     }, []);
-    
-    const getMockRating = (id: string | number) => {
-        let seed = 0;
-        if (typeof id === 'number') seed = id;
-        else seed = [...String(id)].reduce((sum, ch) => sum + ch.charCodeAt(0), 0);
-        return {
-            rating: 4.2 + (seed % 30) / 100,
-            reviewCount: 100 + (seed % 200),
-        };
-    };
 
-    const handleViewAllRooms = () => {
-        console.log("Navigating to all rooms page");
-    };
-
+    // Auto-pagination
     const paginatedHotels = useMemo(() => {
         const startIndex = (currentPage - 1) * roomsPerPage;
         return hotelsList.slice(startIndex, startIndex + roomsPerPage);
     }, [currentPage, hotelsList]);
 
     const totalPages = Math.ceil(hotelsList.length / roomsPerPage);
-
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -85,15 +74,18 @@ const FeaturedHotels: React.FC<FeaturedHotelsProps> = () => {
         return () => clearInterval(interval);
     }, [totalPages]);
 
-    return (
+    const handleViewAllRooms = () => {
+        console.log("Navigating to all rooms page");
+    };
 
+    return (
         <section className="py-16 bg-white">
             <div className="container mx-auto px-4">
                 
                 {/* Section Header */}
                 <div className="text-center mb-12">
                     <h2 className="text-4xl text-[#0a1e3d] mb-4 font-semibold">
-                        Popular Reservation
+                        Featured Rooms
                     </h2>
                     <p className="text-gray-600 max-w-2xl mx-auto">
                         Discover our handpicked selection of luxurious accommodations designed for your comfort
@@ -107,12 +99,16 @@ const FeaturedHotels: React.FC<FeaturedHotelsProps> = () => {
                     ) : error ? (
                         <div className="col-span-3 text-center text-red-500">{error}</div>
                     ) : paginatedHotels.map((hotel) => {
-                        const { rating, reviewCount } = getMockRating(hotel._id ?? "");
+                        // Rating may be null
+                        const rating: number | null = hotel.rating ?? null;
+                        const reviewCount: number | null = hotel.reviewCount ?? null;
+
                         return (
                             <div
                                 key={hotel._id}
                                 className="bg-white overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-shadow duration-300 cursor-pointer group block"
                             >
+                                {/* Image */}
                                 <div className="relative h-64 overflow-hidden">
                                     <img
                                         src={hotel.thumbnailPic?.url || ''}
@@ -123,22 +119,33 @@ const FeaturedHotels: React.FC<FeaturedHotelsProps> = () => {
                                         ${hotel.pricePerNight}/night
                                     </div>
                                 </div>
+
+                                {/* Details */}
                                 <div className="p-6">
                                     <h3 className="text-xl text-[#0a1e3d] mb-2 font-semibold">
                                         {hotel.title}
                                     </h3>
+                                    
+                                    {/* Rating */}
                                     <div className="flex items-center gap-2 mb-3 text-sm">
                                         <div className="flex items-center">
                                             <Star className="h-4 w-4 text-[#d4a574] fill-[#d4a574]" />
-                                            <span className="ml-1 text-[#0a1e3d] font-medium">{rating.toFixed(1)}</span>
+                                            <span className="ml-1 text-[#0a1e3d] font-medium">
+                                                {rating === null ? "N/A" : rating.toFixed(1)}
+                                            </span>
                                         </div>
                                         <span className="text-gray-500">
-                                            ({reviewCount} reviews)
+                                            ({reviewCount ?? 0} reviews)
                                         </span>
                                     </div>
-                                    <p className="text-gray-600 mb-6 line-clamp-2 text-base">
-                                        {hotel.city || 'Featured room'}: Experience luxury in this elegant room, featuring modern amenities and stunning views, perfect for a restful escape.
-                                    </p>
+                                    {/* Description */}
+                                    <div className="mb-4">
+                                        <h4 className="text-sm font-semibold text-gray-700 mb-1">About this room</h4>
+                                        <p className="text-gray-600 line-clamp-2 text-base">
+                                            {hotel.description || 'Experience luxury in this elegant room, featuring modern amenities and stunning views, perfect for a restful escape.'}
+                                        </p>
+                                    </div>
+                                    {/* View Details Button */}
                                     <div
                                         className="w-full text-center py-3 bg-[#0a1e3d] hover:bg-[#0a1e3d]/90 text-white rounded-xl text-base font-semibold transition-colors"
                                         onClick={() => navigate(`/Hotels/${hotel._id}`)}
@@ -153,8 +160,6 @@ const FeaturedHotels: React.FC<FeaturedHotelsProps> = () => {
                         );
                     })}
                 </div>
-
-    
 
                 {/* View All Button */}
                 <div className="text-center mt-12">

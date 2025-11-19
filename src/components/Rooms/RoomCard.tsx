@@ -1,5 +1,5 @@
 import React from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Users, Star, Wifi, Tv, Coffee, Check, Bed, Car, Dumbbell, Sun, Utensils} from "lucide-react";
 import type { Room } from "../../types"; // Keep only one import
 
@@ -37,7 +37,7 @@ const AmenityIcon = ({ name }: { name: string }) => {
   const NAVY = "#0a1e3d"; 
   return <Icon className={`w-4 h-4 text-[${NAVY}]`} />;
 };
-const RoomCard: React.FC<RoomCardProps> = ({ room, onBookNow }) => {
+const RoomCard: React.FC<RoomCardProps> = ({ room }) => {
   const navigate = useNavigate();
   const displayRating = room.rating ? room.rating.toFixed(1) : "N/A";
   const firstImage = room.photos?.[0]?.url || "placeholder-url";
@@ -45,7 +45,6 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, onBookNow }) => {
   // Tailwind Color Variables
   const NAVY = "#0a1e3d";
   const GOLD = "#d4a574";
-  const HOVER_GOLD = "#c19563";
   const RED = "#d4183d";
   const LIGHT_GRAY = "#f8f9fa";
 
@@ -62,7 +61,7 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, onBookNow }) => {
     >
       <div className="grid md:grid-cols-3 gap-0">
         {/* 2. IMAGE SECTION (1/3 width on desktop) */}
-        <div className="relative overflow-hidden aspect-[4/3.2]">
+        <div className="relative overflow-hidden aspect-[4/3.5]">
           <img
             src={firstImage}
             alt={room.title}
@@ -211,33 +210,6 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, onBookNow }) => {
             >
               View Details
             </button>
-
-            {/* Book Now Button: Solid Gold Background */}
-            {room.isAvailable ? (
-              <Link
-                to={`/Book/${room._id}`}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onBookNow?.();
-                }}
-                className={`
-            flex-1 px-4 py-2 rounded-xl border-2 font-medium transition-colors text-center
-            bg-[${GOLD}] text-[${NAVY}] hover:bg-[${HOVER_GOLD}]
-        `}
-              >
-                Book Now
-              </Link>
-            ) : (
-              <button
-                disabled
-                className={`
-            flex-1 px-4 py-2 rounded-xl border-2 font-medium transition-colors
-            bg-gray-300 text-gray-500 cursor-not-allowed border-gray-300 text-center
-        `}
-              >
-                Unavailable
-              </button>
-            )}
           </div>
         </div>
       </div>

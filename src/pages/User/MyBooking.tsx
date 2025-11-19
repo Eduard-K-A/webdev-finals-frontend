@@ -1,5 +1,3 @@
-// src/pages/User/MyBooking.tsx (Updated)
-
 import React, { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import axios from "axios";
@@ -8,7 +6,6 @@ import type { Booking } from "../../types";
 import { fetchWithCache, clearCacheKey } from "../../utils/cache"; 
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
-// ADDED: Import the new modal component
 import ConfirmationModal from "../../components/Modals/ConfirmationModal"; 
 
 // Helper function to format date to MM/DD/YYYY
@@ -75,7 +72,7 @@ const MyBookings: React.FC = () => {
           const res = await axios.get(`${apiBaseUrl}/api/bookings`, { headers });
           return Array.isArray(res.data) ? res.data : (res.data.bookings || res.data);
         },
-        3 * 60 * 1000 // 3 minute TTL
+        3 * 60 * 1000
       );
 
       if (!bookingData || bookingData.length === 0) {
@@ -106,11 +103,10 @@ const MyBookings: React.FC = () => {
   }, [token]);
 
   // --- Handlers for Cancel ---
-  // MODIFIED: This is now the final confirmation step triggered by the modal
   const handleConfirmCancel = async () => {
     if (!bookingToCancelId) return;
 
-    setIsCancelModalOpen(false); // Close modal right away
+    setIsCancelModalOpen(false); 
     const bookingId = bookingToCancelId;
     setBookingToCancelId(null);
 
@@ -123,7 +119,6 @@ const MyBookings: React.FC = () => {
         { headers }
       );
       
-      // OPTIMIZATION (Fix slow loading): Clear cache and update local state
       clearCacheKey('user_bookings'); 
       setBookings(prevBookings => prevBookings.map(b => 
         (b._id === bookingId || b.id === bookingId) 
@@ -131,13 +126,13 @@ const MyBookings: React.FC = () => {
           : b
       ));
 
-      setLoading(false); // Stop loading immediately after local update
+      setLoading(false); 
 
       // ADDED: Toast notification for success
       addToast('Success', `Booking #${bookingId.substring(0, 8)}... successfully cancelled.`, 'success');
 
     } catch (err: any) {
-      setLoading(false);
+      setLoading(true);
       console.error("Error cancelling booking:", err);
       // ADDED: Toast notification for error
       addToast('Error', `Failed to cancel booking: ${err.response?.data?.message || err.message}`, 'error');

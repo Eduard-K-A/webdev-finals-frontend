@@ -1,20 +1,39 @@
 import React from "react";
 import { Link } from "react-router-dom";
-// Assuming 'lucide-react' for modern, clean icons
-import { Users, Star, Wifi, Tv, Coffee } from "lucide-react";
+import { Users, Star, Wifi, Tv, Coffee, Check, Bed, Car, Dumbbell, Sun, Utensils} from "lucide-react";
 import type { RoomCardProps} from "../../types";
 
 
-// Helper to map amenity strings to Lucide icons (for display only)
+// Helper to map amenity strings to Lucide icons
 const AmenityIcon = ({ name }: { name: string }) => {
+  const lowerName = name.toLowerCase();
   const iconMap: { [key: string]: React.ElementType } = {
+    // Basic/Common
     wifi: Wifi,
+    internet: Wifi,
     tv: Tv,
+    television: Tv,
+    breakfast: Utensils,
+    kitchen: Utensils,
+    // Room Features
+    bed: Bed,
+    king: Bed,
+    queen: Bed,
+    double: Bed,
+    // Hotel Services
     "coffee maker": Coffee,
-    // Add more mappings as needed
+    parking: Car,
+    garage: Car,
+    gym: Dumbbell,
+    fitness: Dumbbell,
+    pool: Sun, 
+    balcony: Sun,
+    view: Sun,
   };
-  const Icon = iconMap[name.toLowerCase()] || Wifi;
-  return <Icon className="w-4 h-4 text-gray-500" />;
+
+  const Icon = iconMap[lowerName] || Check;
+  const NAVY = "#0a1e3d"; 
+  return <Icon className={`w-4 h-4 text-[${NAVY}]`} />;
 };
 
 const RoomCard: React.FC<RoomCardProps> = ({
@@ -45,7 +64,7 @@ const RoomCard: React.FC<RoomCardProps> = ({
     >
       <div className="grid md:grid-cols-3 gap-0">
         {/* 2. IMAGE SECTION (1/3 width on desktop) */}
-        <div className="relative h-64 md:h-auto overflow-hidden">
+        <div className="relative overflow-hidden aspect-[4/3.2]">
           <img
             src={firstImage}
             alt={room.title}

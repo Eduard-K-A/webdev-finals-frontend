@@ -4,7 +4,6 @@ import { Star } from 'lucide-react';
 import type { Room } from "../../types";
 import { fetchWithCache } from "../../utils/cache";
 
-
 interface FeaturedHotelsProps {}
 
 const FeaturedHotels: React.FC<FeaturedHotelsProps> = () => {

@@ -1,71 +1,113 @@
 import React from "react";
-
-const HERO_IMAGE_URL = "https://via.placeholder.com/1200x400"; // replace with the actual image URL
+import { Star, Wifi, Coffee, Users, Tv } from "lucide-react";
 
 const AboutUs: React.FC = () => {
-  const team = [
-    { name: "Anterola Eduard King", role: "Backend Developer", img: "https://via.placeholder.com/150" },
-    { name: "Platon Shan Christian", role: "Frontend Developer", img: "https://via.placeholder.com/150" },
-    { name: "Esquillo Christian", role: "Frontend Developer", img: "https://via.placeholder.com/150" },
-  ];
-
   return (
-    <div className="max-w-6xl mx-auto p-8 space-y-12">
-
-      {/* Mission Banner */}
-      <section
-        className="relative rounded-lg overflow-hidden shadow-lg h-64 flex items-center justify-center text-center"
-        style={{
-          backgroundImage: `url(${HERO_IMAGE_URL})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      >
-        {/* Dark overlay */}
-        <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-center items-center p-6">
-          <h1 className="text-4xl font-bold mb-4 text-white">Our Mission</h1>
-          <p className="text-white text-lg max-w-2xl">
-            As Group 10, our mission is to create an exceptional online experience for our guests. 
-            We strive to provide a website that is intuitive, beautifully designed, and easy to navigate, 
-            so planning your stay is as enjoyable and seamless as the experience at our hotel itself.
+    <div className="relative bg-gray-50 min-h-screen">
+      
+      {/* Page Header */}
+      <header className="bg-[var(--color-brand-navy)] text-white py-16">
+        <div className="max-w-6xl mx-auto px-6 text-center">
+          <h1 className="text-4xl md:text-5xl font-extrabold mb-4">
+            Welcome to LuxeStay
+          </h1>
+          <p className="text-lg md:text-xl text-gray-200 max-w-3xl mx-auto">
+            Experience luxury, comfort, and impeccable service in the heart of the city. 
+            Our curated accommodations are designed for relaxation and convenience.
           </p>
+        </div>
+      </header>
+
+      {/* What We Offer Section */}
+      <section className="max-w-6xl mx-auto px-6 py-16">
+        <h2 className="text-3xl md:text-4xl font-bold text-center text-[var(--color-brand-navy)] mb-12">
+          What We Offer
+        </h2>
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-2xl transition-shadow duration-300 text-center">
+            <Wifi className="w-12 h-12 mx-auto text-[var(--color-brand-navy)] mb-4" />
+            <h3 className="text-xl font-semibold mb-2">Free Wi-Fi</h3>
+            <p className="text-gray-600 text-sm">
+              Stay connected with high-speed internet throughout the property.
+            </p>
+          </div>
+
+          <div className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-2xl transition-shadow duration-300 text-center">
+            <Coffee className="w-12 h-12 mx-auto text-[var(--color-brand-navy)] mb-4" />
+            <h3 className="text-xl font-semibold mb-2">Complimentary Breakfast</h3>
+            <p className="text-gray-600 text-sm">
+              Enjoy a delicious breakfast to start your day right.
+            </p>
+          </div>
+
+          <div className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-2xl transition-shadow duration-300 text-center">
+            <Tv className="w-12 h-12 mx-auto text-[var(--color-brand-navy)] mb-4" />
+            <h3 className="text-xl font-semibold mb-2">Entertainment</h3>
+            <p className="text-gray-600 text-sm">
+              Relax in rooms with modern entertainment options for your enjoyment.
+            </p>
+          </div>
+
+          <div className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-2xl transition-shadow duration-300 text-center">
+            <Users className="w-12 h-12 mx-auto text-[var(--color-brand-navy)] mb-4" />
+            <h3 className="text-xl font-semibold mb-2">Spacious Rooms</h3>
+            <p className="text-gray-600 text-sm">
+              Rooms designed for comfort, accommodating families and groups with ease.
+            </p>
+          </div>
         </div>
       </section>
 
-      {/* Team Section */}
-      <section>
-        <h2 className="text-3xl font-bold mb-6 text-center text-[var(--color-brand-navy)]">
-          Meet the Team
+      {/* Experience Section */}
+      <section className="bg-white py-16">
+        <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center gap-12">
+          {/* Image */}
+          <div className="md:w-1/2">
+            <img
+              src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80"
+              alt="Hotel Lobby"
+              className="rounded-2xl shadow-2xl object-cover w-full h-full"
+            />
+          </div>
+
+          {/* Text */}
+          <div className="md:w-1/2">
+            <h2 className="text-3xl md:text-4xl font-bold text-[var(--color-brand-navy)] mb-4">
+              Your Comfort, Our Priority
+            </h2>
+            <p className="text-gray-700 text-lg mb-4">
+              At LuxeStay, we pride ourselves on delivering an unforgettable experience. 
+              From meticulously designed rooms to personalized service, every detail is crafted for your satisfaction.
+            </p>
+            <p className="text-gray-700 text-lg">
+              Relax, recharge, and create memories in an environment that blends elegance with convenience.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Reviews / Testimonials Section */}
+      <section className="max-w-6xl mx-auto px-6 py-16">
+        <h2 className="text-3xl md:text-4xl font-bold text-center text-[var(--color-brand-navy)] mb-12">
+          What Our Guests Say
         </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-          {team.map((member) => (
-            <div
-              key={member.name}
-              className="bg-white rounded-lg shadow-md p-6 text-center hover:scale-105 transform transition duration-300"
-            >
-              <img
-                src={member.img}
-                alt={member.name}
-                className="w-32 h-32 mx-auto rounded-full object-cover mb-4"
-              />
-              <h3 className="text-xl font-semibold text-[var(--color-brand-navy)] break-words">
-                {member.name}
-              </h3>
-              <p className="text-black">{member.role}</p>
+        <div className="grid md:grid-cols-3 gap-8">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-2xl transition-shadow duration-300">
+              <div className="flex items-center gap-2 mb-2">
+                <Star className="w-5 h-5 text-[var(--color-brand-navy)] fill-[var(--color-brand-navy)]" />
+                <Star className="w-5 h-5 text-[var(--color-brand-navy)] fill-[var(--color-brand-navy)]" />
+                <Star className="w-5 h-5 text-[var(--color-brand-navy)] fill-[var(--color-brand-navy)]" />
+                <Star className="w-5 h-5 text-[var(--color-brand-navy)] fill-[var(--color-brand-navy)]" />
+                <Star className="w-5 h-5 text-[var(--color-brand-navy)] fill-[var(--color-brand-navy)]" />
+              </div>
+              <p className="text-gray-700 text-sm">
+                "Amazing stay! The staff were so friendly, and the rooms were immaculate. Highly recommend LuxeStay to anyone visiting the city!"
+              </p>
+              <p className="text-gray-900 font-semibold mt-2">– Jane Doe</p>
             </div>
           ))}
         </div>
-      </section>
-
-      {/* Contact Section */}
-      <section className="text-center">
-        <h2 className="text-3xl font-bold mb-4 text-[var(--color-brand-navy)]">Contact Us</h2>
-        <p className="text-black mb-1">
-          Phone: <a href="tel:+18005550123" className="text-blue-600 hover:underline">+1 (800) 555-0123</a>
-        </p>
-        <p className="text-black">
-          Email: <a href="mailto:contact@luxestay.com" className="text-blue-600 hover:underline">contact@luxestay.com</a>
-        </p>
       </section>
     </div>
   );

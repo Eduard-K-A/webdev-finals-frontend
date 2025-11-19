@@ -55,6 +55,7 @@ const RoomFormModal: React.FC<RoomFormModalProps> = ({ roomData, onClose, onSave
     const initialAmenities = roomData?.amenities.join(', ') || '';
     const [amenitiesString, setAmenitiesString] = useState(initialAmenities);
     const [isAvailable, setIsAvailable] = useState(roomData?.isAvailable ?? true);
+    const [rating, setRating] = useState(roomData?.rating?.toString() || '0');
 
     // 1. Files newly selected for upload (objects)
     const [imagesToUpload, setImagesToUpload] = useState<File[]>([]);
@@ -198,6 +199,7 @@ const RoomFormModal: React.FC<RoomFormModalProps> = ({ roomData, onClose, onSave
                 // Ensure thumbnailPic is explicitly null if no image is selected/found
                 thumbnailPic: thumbnailPic, 
                 isAvailable: isAvailable, 
+                rating: Number(rating),
             };
 
             if (isEditing) {
@@ -264,6 +266,19 @@ const RoomFormModal: React.FC<RoomFormModalProps> = ({ roomData, onClose, onSave
                         <div>
                             <label className="block text-sm font-medium mb-1 text-gray-700">Price per Night ($) *</label>
                             <input type="number" value={pricePerNight} onChange={(e) => setPricePerNight(e.target.value)} required placeholder="299" min="0" className={inputClass} />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium mb-1 text-gray-700">Room Rating (0-5)</label>
+                            <input
+                                type="number"
+                                value={rating}
+                                onChange={e => setRating(e.target.value)}
+                                min={0}
+                                max={5}
+                                step={0.1}
+                                className={inputClass}
+                                required
+                            />
                         </div>
                     </div>
                     
@@ -397,6 +412,7 @@ const ManageRoom: React.FC = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [roomToEdit, setRoomToEdit] = useState<Room | null>(null);
+    const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
     // --- Redirect/Auth Check ---
     useEffect(() => {
@@ -450,7 +466,8 @@ const ManageRoom: React.FC = () => {
             clearCacheKey('admin_rooms');
             clearCacheKey('featured_hotels');
             await fetchRooms(); // Re-fetch the list
-            alert('Room deleted successfully');
+            setSuccessMessage('Room deleted successfully');
+            setTimeout(() => setSuccessMessage(null), 2500);
         } catch (err) {
             console.error('Failed to delete room', err);
             alert('Failed to delete room');
@@ -458,10 +475,14 @@ const ManageRoom: React.FC = () => {
     };
 
     // Optimized modal close after update
-    const handleModalClose = async () => {
+    const handleModalClose = async (msg?: string) => {
         setRoomToEdit(null);
         setIsModalOpen(false);
         await fetchRooms(); // Ensure room list is updated after modal closes
+        if (msg) {
+            setSuccessMessage(msg);
+            setTimeout(() => setSuccessMessage(null), 2500);
+        }
     };
 
     // --- Filtered/Computed Data ---
@@ -497,7 +518,11 @@ const ManageRoom: React.FC = () => {
                         <p className="text-gray-600">Manage all rooms and their availability</p>
                     </div>
                 </div>
-                
+                {successMessage && (
+                  <div className="mb-4 p-3 rounded-lg bg-green-100 text-green-800 text-center font-semibold border border-green-300 animate-fade-in">
+                    {successMessage}
+                  </div>
+                )}
                 {/* --- Search and Add Button --- */}
                 <div className="flex justify-between items-center mb-8">
                     <div className="relative w-full max-w-sm">
@@ -590,7 +615,8 @@ const ManageRoom: React.FC = () => {
                                             ${room.pricePerNight}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 flex items-center">
-                                            {room.rating ? room.rating.toFixed(1) : 'N/A'} <Bed className={`w-4 h-4 ml-1 ${goldText} fill-[var(--color-brand-gold)]`} />
+                                            {typeof room.rating === 'number' ? room.rating.toFixed(1) : 'N/A'}
+                                            <svg className="w-4 h-4 ml-1 text-yellow-400 inline-block" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.967a1 1 0 00.95.69h4.18c.969 0 1.371 1.24.588 1.81l-3.388 2.46a1 1 0 00-.364 1.118l1.287 3.966c.3.922-.755 1.688-1.54 1.118l-3.388-2.46a1 1 0 00-1.176 0l-3.388 2.46c-.784.57-1.838-.196-1.539-1.118l1.287-3.966a1 1 0 00-.364-1.118l-3.388-2.46c-.783-.57-.38-1.81.588-1.81h4.18a1 1 0 00.95-.69l1.286-3.967z"/></svg>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm">
                                             <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
@@ -635,8 +661,8 @@ const ManageRoom: React.FC = () => {
             {isModalOpen && (
                 <RoomFormModal 
                     roomData={roomToEdit} 
-                    onClose={handleModalClose} 
-                    onSave={handleModalClose}
+                    onClose={() => handleModalClose()} 
+                    onSave={() => handleModalClose(isModalOpen && roomToEdit ? 'Room updated successfully' : 'Room created successfully')} 
                 />
             )}
         </div>

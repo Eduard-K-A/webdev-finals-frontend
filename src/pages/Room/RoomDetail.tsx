@@ -24,29 +24,33 @@ const getTodayDate = () => {
 const AmenityIcon = ({ name }: { name: string }) => {
     const lowerName = name.toLowerCase();
     const iconMap: { [key: string]: React.ElementType } = {
-        // Basic/Common
-        wifi: Wifi,
-        internet: Wifi,
-        tv: Tv,
-        television: Tv,
-        breakfast: Utensils,
-        kitchen: Utensils,
-        'coffee maker': Coffee,
-        // Room Features
-        bed: Bed,
-        king: Bed,
-        queen: Bed,
-        single: Bed,
-        double: Bed,
-        // Hotel Services
-        parking: Car,
-        garage: Car,
-        gym: Dumbbell,
-        fitness: Dumbbell,
-        pool: Sun,
-        balcony: Sun,
-        view: Sun,
-    };
+         // Basic/Common
+         wifi: Wifi,
+         "free wifi": Wifi,
+         internet: Wifi,
+         tv: Tv,
+         television: Tv,
+         breakfast: Utensils,
+         kitchen: Utensils,
+         // Room Features
+         bed: Bed,
+         king: Bed,
+         queen: Bed,
+         double: Bed,
+         // Hotel Services
+         "coffee maker": Coffee,
+         parking: Car,
+         "free parking": Car,
+         garage: Car,
+         gym: Dumbbell,
+         fitness: Dumbbell,
+         "Fitness Centre": Dumbbell,
+         "outdoor swimming pool": Sun,
+         "indoor swimming pool": Sun,
+         pool: Sun, 
+         balcony: Sun,
+         view: Sun,
+       };
     
     const Icon = iconMap[lowerName] || Check;
     

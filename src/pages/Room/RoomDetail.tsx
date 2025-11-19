@@ -181,8 +181,29 @@ const RoomDetail: React.FC = () => {
     
     const hasConflict = checkIfDatesConflict();
 
+    // Validate booking dates
+    const validateBookingDates = (): boolean => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const checkIn = new Date(checkInDate);
+        const checkOut = new Date(checkOutDate);
+
+        if (checkIn < today) {
+            alert('Check-in date cannot be in the past.');
+            return false;
+        }
+
+        if (checkOut <= checkIn) {
+            alert('Check-out date must be after the check-in date.');
+            return false;
+        }
+
+        return true;
+    };
+
     // Booking action with validation
-    const handleBookNow = () => {
+    const handleBookNow = async () => {
         if (!room) return;
 
         if (!isLoggedIn) {
@@ -190,18 +211,44 @@ const RoomDetail: React.FC = () => {
             return;
         }
 
-        if (numberOfNights === 0 || hasConflict) {
-            console.error("Booking conflict or invalid dates selected.");
+        if (!validateBookingDates()) {
             return;
         }
-        
-        // 1. Simulate successful booking (API call would go here)
-        console.log('Successfully booked:', { checkInDate, checkOutDate, guests, finalPrice, numberOfNights });
-        alert(`Booking ${room.title} confirmed for $${finalPrice.toFixed(2)} from ${checkInDate} to ${checkOutDate} for ${guests} guests.`);
-        setBookedRanges(prev => [...prev, { start: checkInDate, end: checkOutDate }]);
-        setCheckInDate('');
-        setCheckOutDate('');
-        setGuests(1);
+
+        if (numberOfNights === 0 || hasConflict || !room.isAvailable) {
+            console.error("Booking conflict, invalid dates, or room unavailable.");
+            alert("This room is unavailable for the selected dates.");
+            return;
+        }
+
+        try {
+            const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+            const bookingData = {
+                room: room._id,
+                checkInDate,
+                checkOutDate,
+                totalGuests: guests,
+                totalPrice: finalPrice,
+            };
+
+            const response = await axios.post(`${apiBaseUrl}/api/bookings`, bookingData, {
+                headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+            });
+
+            console.log('Booking successful:', response.data);
+            alert(`Booking confirmed for $${finalPrice.toFixed(2)} from ${checkInDate} to ${checkOutDate} for ${guests} guests.`);
+
+            setBookedRanges((prev) => [...prev, { start: checkInDate, end: checkOutDate }]);
+            setCheckInDate('');
+            setCheckOutDate('');
+            setGuests(1);
+
+            // Dispatch a custom event to notify MyBookings to refresh
+            window.dispatchEvent(new Event('bookingUpdated'));
+        } catch (error: any) {
+            console.error('Error creating booking:', error.response?.data || error.message);
+            alert('Failed to create booking. Please try again.');
+        }
     };
 
 
@@ -224,14 +271,14 @@ const RoomDetail: React.FC = () => {
     
     const hasValidDates = numberOfNights > 0; // Check validity based on calculated nights
     
-    // Button is disabled if: not logged in OR invalid dates OR there is a conflict
-    const isBookButtonDisabled = !isLoggedIn || !hasValidDates || hasConflict;
+    // Button is disabled if: not logged in OR invalid dates OR there is a conflict OR room is unavailable
+    const isBookButtonDisabled = !isLoggedIn || !hasValidDates || hasConflict || !room.isAvailable;
     let buttonText = 'Book Now';
     
     if (!isLoggedIn) {
         buttonText = 'Login to Book';
-    } else if (hasConflict) {
-        buttonText = 'Dates Booked';
+    } else if (hasConflict || !room.isAvailable) {
+        buttonText = 'Unavailable';
     } else if (!hasValidDates) {
         buttonText = 'Select Dates';
     }

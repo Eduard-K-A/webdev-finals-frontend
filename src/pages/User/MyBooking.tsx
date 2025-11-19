@@ -33,13 +33,53 @@ const MyBookings: React.FC = () => {
   const token = localStorage.getItem("token");
   const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
-  // Navigate to sign in if no token
-  if (!isLoggedIn) { 
-  localStorage.removeItem("token"); 
-  return <Navigate to="/SignIn" replace />;
-}
+  //navigate to home if no token
+  if (!token) {
+    return <Navigate to="/Signin" replace />;
+  }
 
-  const headers: any = { 'Authorization': `Bearer ${token}` };
+  // Fetch all bookings for logged-in user
+  useEffect(() => {
+    const fetchBookings = async () => {
+      setLoading(true);
+      try {
+        const apiBaseUrl =
+          import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+
+        // Debug: Check if token exists
+        console.log("Auth Token:", token ? "✓ Present" : "✗ Missing");
+        if (!token) {
+          setError("Please log in to view your bookings.");
+          setLoading(false);
+          return;
+        }
+
+        const headers: any = { 'Authorization': `Bearer ${token}` };
+        console.log("Fetching from:", `${apiBaseUrl}/api/bookings`);
+
+        // Fetch with cache
+        const bookingData = await fetchWithCache(
+          'user_bookings',
+          async () => {
+            const res = await axios.get(`${apiBaseUrl}/api/bookings`, { headers });
+            console.log("Bookings response:", res.data);
+            return Array.isArray(res.data) ? res.data : (res.data.bookings || res.data);
+          },
+          3 * 60 * 1000 // 3 minute TTL for bookings
+        );
+
+        if (!bookingData || bookingData.length === 0) {
+          setBookings([]);
+          setError("No bookings found. Start planning your next stay!");
+        } else {
+          console.log("Bookings loaded:", bookingData.length);
+          setBookings(bookingData);
+        }
+      } catch (err: any) {
+        console.error("Error fetching bookings:", err);
+        console.error("Response data:", err.response?.data);
+        console.error("Response status:", err.response?.status);
+        setBookings([]);
 
   // ** NEW: Status Styling Helper Function **
   const getStatusClasses = (status: Booking['status']): string => {
@@ -179,45 +219,43 @@ const MyBookings: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Global Navigation Bar was removed from here as requested */}
+    <div className="min-h-screen bg-white flex flex-col items-center p-6 pt-28">
+      <h1 className="text-3xl font-bold text-[#362f22] mb-6">My Bookings</h1>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        {/* Page Header */}
-        <header className="pb-8">
-          <h1 className="text-3xl font-bold text-gray-900">My Bookings</h1>
-          <p className="text-gray-500">Manage your hotel reservations and view booking history</p>
-        </header>
-        
-        {/* Active Bookings Section */}
-        <h2 className="text-xl font-semibold text-gray-800 mb-4">Active Bookings</h2>
+      <div className="w-full max-w-3xl space-y-6">
+        {bookings.filter(b => b.room).map((b) => (
+          <div
+            key={b._id || b.id}
+            className="shadow-lg rounded-2xl border border-[#e1d7c6] bg-[#faf7f2] hover:shadow-xl transition-all duration-300 p-6"
+          >
+            <div className="flex flex-col md:flex-row md:items-center justify-between">
+              <div>
+                {/* Room Title */}
+                <h2 className="text-2xl font-semibold text-[#362f22] flex items-center gap-2">
+                  <Hotel className="w-6 h-6" /> {b.room.title}
+                </h2>
 
-        {activeBookings.length === 0 && !loading && (
-          <div className="flex flex-col items-center justify-center py-20 text-center text-gray-500 border border-dashed rounded-lg mt-4">
-            <Hotel className="w-10 h-10 mx-auto mb-4 opacity-70" />
-            <p className="text-lg">{error || "No active bookings found."}</p>
-          </div>
-        )}
-        
-        {/* Booking List - Card UI */}
-        <div className="space-y-6">
-          {activeBookings.map((b) => {
-            const room = b.room;
-            const displayPrice = `$${b.totalPrice?.toFixed(0) || '---'}`; 
-
-            return (
-              <div 
-                key={b._id || b.id} 
-                className="flex border rounded-xl overflow-hidden shadow-lg bg-white hover:shadow-xl transition-shadow duration-300"
-              >
-                {/* Image Section */}
-                <div className="w-48 h-48 flex-shrink-0">
-                  <img
-                    // Check if room.photos exists and has at least one element
-                    src={room.photos?.[0]?.url || 'https://via.placeholder.com/200x200?text=Room+Image'} 
-                    alt={room.title}
-                    className="w-full h-full object-cover"
-                  />
+                {/* Booking Info */}
+                <div className="mt-3 space-y-2 text-[#362f22]/80">
+                  <p className="flex items-center gap-2">
+                    <Calendar className="w-5 h-5" /> Check-in:{" "}
+                    <span className="font-medium">
+                      {new Date(b.checkInDate).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
+                    </span>
+                  </p>
+                  <p className="flex items-center gap-2">
+                    <Clock className="w-5 h-5" /> Check-out:{" "}
+                    <span className="font-medium">
+                      {new Date(b.checkOutDate).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
+                    </span>
+                  </p>
+                  <p className="flex items-center gap-2">
+                    <MapPin className="w-5 h-5" /> Room Type:{" "}
+                    <span className="font-medium">{b.room.type}</span>
+                  </p>
+                  <p className="text-sm mt-2">
+                    Status: <span className={`font-medium ${b.status === 'Confirmed' ? 'text-green-600' : b.status === 'Cancelled' ? 'text-red-600' : 'text-yellow-600'}`}>{b.status}</span>
+                  </p>
                 </div>
 
                 {/* Details and Actions Section */}

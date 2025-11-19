@@ -49,7 +49,8 @@ function RoomLayout() {
           
           // Transform backend data to match frontend Room type
           return (data.rooms || data || []).map((room: any) => ({
-            id: room.id,
+            id: room.id || room._id, // Use custom id if available, fallback to MongoDB _id
+            _id: room._id, // Always include MongoDB _id
             title: room.title,
             description: room.description,
             type: room.type,
@@ -57,9 +58,12 @@ function RoomLayout() {
             maxPeople: room.maxPeople,
             amenities: room.amenities || [],
             photos: room.photos || [],
+            thumbnailPic: room.thumbnailPic || null,
             isAvailable: room.isAvailable !== undefined ? room.isAvailable : true,
             rating: room.averageRating || 0, // Map averageRating to rating
             averageRating: room.averageRating || 0,
+            reviewCount: room.reviewCount || 0,
+            isTopRated: (room.averageRating || 0) >= 4.5,
             createdAt: room.createdAt,
             updatedAt: room.updatedAt
           }));
@@ -264,7 +268,6 @@ function RoomLayout() {
               <RoomCard
                 key={room.id}
                 room={room}
-                onViewDetails={() => console.log('View details for', room.title)} 
               />
             ))}
           </div>

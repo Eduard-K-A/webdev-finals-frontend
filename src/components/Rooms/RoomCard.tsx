@@ -1,7 +1,9 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Users, Star, Wifi, Tv, Coffee, Check, Bed, Car, Dumbbell, Sun, Utensils} from "lucide-react";
-import type { RoomCardProps} from "../../types";
+import type { Room } from "../../types"; // Keep only one import
+
+type RoomCardProps = { room: Room; onBookNow?: () => void; }; // Keep only one declaration
 
 
 // Helper to map amenity strings to Lucide icons
@@ -35,12 +37,8 @@ const AmenityIcon = ({ name }: { name: string }) => {
   const NAVY = "#0a1e3d"; 
   return <Icon className={`w-4 h-4 text-[${NAVY}]`} />;
 };
-
-const RoomCard: React.FC<RoomCardProps> = ({
-  room,
-  onViewDetails,
-  onBookNow,
-}) => {
+const RoomCard: React.FC<RoomCardProps> = ({ room, onBookNow }) => {
+  const navigate = useNavigate();
   const displayRating = room.rating ? room.rating.toFixed(1) : "N/A";
   const firstImage = room.photos?.[0]?.url || "placeholder-url";
 
@@ -60,7 +58,7 @@ const RoomCard: React.FC<RoomCardProps> = ({
                 cursor-pointer group bg-white
                 ${!room.isAvailable ? "opacity-75" : ""}
             `}
-      onClick={onViewDetails} // Primary click action
+      onClick={() => navigate(`/Hotels/${room._id}`)} // Always use MongoDB _id
     >
       <div className="grid md:grid-cols-3 gap-0">
         {/* 2. IMAGE SECTION (1/3 width on desktop) */}
@@ -204,7 +202,7 @@ const RoomCard: React.FC<RoomCardProps> = ({
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                onViewDetails();
+                navigate(`/Hotels/${room._id}`);
               }}
               className={`
                                 flex-1 px-4 py-2 rounded-xl border-2 font-medium transition-colors
@@ -217,7 +215,7 @@ const RoomCard: React.FC<RoomCardProps> = ({
             {/* Book Now Button: Solid Gold Background */}
             {room.isAvailable ? (
               <Link
-                to={`/Book/${room.id}`}
+                to={`/Book/${room._id}`}
                 onClick={(e) => {
                   e.stopPropagation();
                   onBookNow?.();

@@ -3,7 +3,6 @@ import HomePage from "./components/Dashboard/HomePage";
 import { SearchContextProvider } from "./context/SearchContext";
 import { AuthContextProvider } from "./context/AuthContext";
 import MyBookings from "./pages/User/MyBooking";
-import Book from "./pages/User/Book";
 import User from "./pages/Admin/User";
 import SignIn from "./pages/Login/SignIn";
 import Register from "./pages/Login/Register";
@@ -14,10 +13,13 @@ import RoomLayout from "./pages/Room/RoomLayout";
 import Policies from "./pages/PoliciesAndSupport/Policies";
 import FAQ from "./pages/PoliciesAndSupport/FAQ";
 import AboutUs from "./pages/AboutUs/AboutUs";
+import { ToastProvider } from "./context/ToastContext"; 
+import ToastContainer from "./components/ToastContainer";
 
 function App() {
   return (
     <AuthContextProvider>
+      <ToastProvider>
       <SearchContextProvider>
         <Router>
           <NavBar />
@@ -26,7 +28,6 @@ function App() {
             <Route path="/Hotels/Search" element={<div>Hotel List Page</div>} />
             <Route path="/Rooms" element={<RoomLayout />} />
             <Route path="/Rooms/Search" element={<RoomLayout />} />
-            <Route path="/Book/:roomId" element={<Book />} />
             <Route path="/MyBookings" element={<MyBookings />} />
             <Route path="/Signin" element={<SignIn />} />
             <Route path="/Register" element={<Register />} />
@@ -38,8 +39,10 @@ function App() {
             <Route path="/Admin/Users" element={<User />} />
             <Route path="*" element={<div>404 Not Found</div>} />
           </Routes>
+          <ToastContainer />
         </Router>
       </SearchContextProvider>
+      </ToastProvider>
     </AuthContextProvider>
   );
 }
